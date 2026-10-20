@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ghid Județ — Discover Romania</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+  <div id="site-header"></div>
+
+  <main class="flex-1 mx-auto w-full max-w-4xl px-6 py-10">
+    <!-- Breadcrumb -->
+    <nav class="flex items-center gap-2 text-xs font-medium text-[var(--muted-foreground)]">
+      <a href="index.html" class="hover:text-[var(--primary)]">Harta</a>
+      <span>/</span>
+      <a href="sectoare.html" class="hover:text-[var(--primary)]">Sectoare</a>
+      <span>/</span>
+      <span id="county-breadcrumb" class="font-semibold text-[var(--foreground)]"></span>
+    </nav>
+
+    <!-- Header Details -->
+    <div class="mt-4 flex flex-wrap items-baseline justify-between gap-4 border-b border-[var(--border)] pb-6">
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 id="county-name" class="text-4xl font-bold tracking-tight text-[var(--primary)]"></h1>
+          <span id="county-sector-badge" class="rounded-md bg-[var(--secondary)] px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider text-[var(--accent)]"></span>
+        </div>
+        <p id="county-intro" class="mt-3 text-lg leading-relaxed text-[var(--muted-foreground)]"></p>
+      </div>
+
+      <a id="btn-add-article" href="panou.html" class="inline-flex items-center gap-2 rounded-lg bg-[var(--primary)] px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-[var(--primary-hover)]">
+        <span>+ Adaugă Articol</span>
+      </a>
+    </div>
+
+    <!-- Highlights -->
+    <section class="mt-8">
+      <h2 class="text-sm font-bold uppercase tracking-wider text-[var(--muted-foreground)]">Repere turistice principale</h2>
+      <ul id="county-highlights" class="mt-3 grid gap-3 sm:grid-cols-3">
+        <!-- Rendered dynamically -->
+      </ul>
+    </section>
+
+    <!-- Articles Section -->
+    <section class="mt-12">
+      <div class="flex items-center justify-between">
+        <h2 class="text-2xl font-bold">Articole turistice</h2>
+        <span id="articles-count-badge" class="text-xs text-[var(--muted-foreground)]"></span>
+      </div>
+
+      <div id="county-articles-grid" class="mt-6 grid gap-5 sm:grid-cols-3">
+        <!-- Rendered dynamically -->
+      </div>
+    </section>
+
+    <div class="mt-14 border-t border-[var(--border)] pt-6">
+      <a href="index.html" class="inline-flex items-center gap-2 text-sm font-semibold text-[var(--primary)] hover:underline">
+        ← Înapoi la harta interactivă
+      </a>
+    </div>
+  </main>
+
+  <div id="site-footer"></div>
+
+  <!-- Scripts -->
+  <script src="assets/js/romania-data.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script>
+    (function () {
+      renderSiteHeader("harta");
+      renderSiteFooter();
+
+      const slug = getParam("judet") || "cluj";
+      const cObj = AppStore.getCountyObj(slug);
+      const name = cObj ? cObj.name : slug;
+      const note = window.COUNTY_NOTES ? window.COUNTY_NOTES[slug] : null;
+      const sec = AppStore.getSectorByCounty(slug);
+
+      document.title = `${name} — Discover Romania`;
+      document.getElementById("county-breadcrumb").textContent = name;
+      document.getElementById("county-name").textContent = name;
+      document.getElementById("county-sector-badge").textContent = sec ? `Sector ${sec.name}` : "";
+      document.getElementById("county-intro").textContent = note && note.intro ? note.intro : "";
+      document.getElementById("btn-add-article").href = `panou.html?judet=${slug}`;
+
+      // Highlights
+      const hList = document.getElementById("county-highlights");
+      if (note && note.highlights && note.highlights.length > 0) {
+        hList.innerHTML = note.highlights.map(h => `
+          <li class="flex items-start gap-2.5 rounded-lg border border-[var(--border)] bg-white p-3.5 text-xs font-medium text-[var(--foreground)] shadow-xs">
+            <span class="mt-0.5 text-[var(--primary)]">📍</span>
+            <span>${h}</span>
+          </li>
+        `).join("");
+      } else {
+        hList.innerHTML = `<li class="text-xs text-[var(--muted-foreground)]">Fără repere adăugate încă.</li>`;
+      }
+
+      function renderArticles() {
+        const articles = AppStore.getCountyArticles(slug);
+        document.getElementById("articles-count-badge").textContent = `${articles.length} articole publicate`;
+
+        const grid = document.getElementById("county-articles-grid");
+        grid.innerHTML = window.ARTICLE_TOPICS.map(topic => {
+          const art = articles.find(a => a.slug === topic.slug);
+          if (!art) {
+            return `
+              <div class="flex flex-col justify-between rounded-xl border border-dashed border-[var(--border)] bg-[var(--secondary)]/30 p-5">
+                <div>
+                  <span class="text-xs font-bold uppercase tracking-wide text-[var(--accent)]">${topic.label}</span>
+                  <p class="mt-2 text-xs text-[var(--muted-foreground)]">${topic.blurb}</p>
+                  <p class="mt-3 text-xs font-semibold uppercase text-[var(--muted-foreground)]">În pregătire</p>
+                </div>
+                <div class="mt-4 pt-3 border-t border-[var(--border)]/40">
+                  <a href="panou.html?judet=${slug}&topic=${topic.slug}" class="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--primary)] hover:underline">
+                    + Scrie acest articol în panou
+                  </a>
+                </div>
+              </div>
+            `;
+          }
+
+          return `
+            <a href="articol.html?judet=${slug}&slug=${art.slug}" class="flex flex-col justify-between rounded-xl border border-[var(--border)] bg-white p-5 shadow-xs transition-all hover:border-[var(--primary)] hover:shadow-md text-decoration-none">
+              <div>
+                <span class="text-xs font-bold uppercase tracking-wide text-[var(--accent)]">${topic.label}</span>
+                <h3 class="mt-2 text-base font-bold text-[var(--foreground)] line-clamp-2">${art.title}</h3>
+                <p class="mt-1.5 text-xs leading-relaxed text-[var(--muted-foreground)] line-clamp-3">${art.excerpt}</p>
+              </div>
+              <div class="mt-4 flex items-center justify-between border-t border-[var(--border)] pt-3 text-xs font-medium text-[var(--primary)]">
+                <span>🕒 ${art.readMinutes} min lectură</span>
+                <span>Citește →</span>
+              </div>
+            </a>
+          `;
+        }).join("") + articles.filter(a => !window.ARTICLE_TOPICS.some(t => t.slug === a.slug)).map(cArt => `
+          <a href="articol.html?judet=${slug}&slug=${cArt.slug}" class="flex flex-col justify-between rounded-xl border border-emerald-500/30 bg-white p-5 shadow-xs transition-all hover:border-emerald-500 text-decoration-none">
+            <div>
+              <span class="rounded-sm bg-emerald-100 text-emerald-800 px-2 py-0.5 text-xs font-bold uppercase">${cArt.topicLabel || "Special"}</span>
+              <h3 class="mt-2 text-base font-bold text-[var(--foreground)] line-clamp-2">${cArt.title}</h3>
+              <p class="mt-1.5 text-xs leading-relaxed text-[var(--muted-foreground)] line-clamp-3">${cArt.excerpt}</p>
+            </div>
+            <div class="mt-4 flex items-center justify-between border-t border-[var(--border)] pt-3 text-xs font-medium text-emerald-700">
+              <span>🕒 ${cArt.readMinutes} min lectură</span>
+              <span>Citește →</span>
+            </div>
+          </a>
+        `).join("");
+      }
+
+      window.addEventListener("discover-romania-articles-updated", renderArticles);
+      renderArticles();
+    })();
+  </script>
+</body>
+</html>

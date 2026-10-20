@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Discover Romania — Harta turismului pe sectoare și județe</title>
+  <meta name="description" content="Atinge un județ pe harta României și citește articole despre locurile de vizitat, mâncare, tradiții și trasee montane din fiecare sector al țării.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+  <div id="site-header"></div>
+
+  <!-- Sector Navigation Filter Bar -->
+  <section class="border-b border-[var(--border)] bg-gradient-to-r from-[var(--secondary)] via-[var(--background)] to-[var(--secondary)] px-6 py-4">
+    <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-2">
+        <svg class="h-4 w-4 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v20m10-10H2m18.07-7.07l-1.41 1.41M5.34 18.66l-1.41 1.41M18.66 18.66l-1.41-1.41M5.34 5.34l-1.41 1.41"/></svg>
+        <span class="text-xs font-bold uppercase tracking-wider text-[var(--muted-foreground)]">Filtru Sector:</span>
+      </div>
+
+      <div id="sector-filters" class="flex flex-wrap items-center gap-1.5">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <a href="panou.html" class="flex items-center gap-1.5 rounded-md border border-[var(--primary)]/30 bg-[var(--primary)]/10 px-3 py-1 text-xs font-semibold text-[var(--primary)] transition-colors hover:bg-[var(--primary)]/20">
+        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+        <span>Adaugă articol</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- Main Grid -->
+  <div class="flex-1 mx-auto w-full max-w-6xl p-6">
+    <div class="grid gap-6 lg:grid-cols-[280px_1fr]">
+      <!-- Left Sidebar: Counties list -->
+      <aside class="flex flex-col rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 lg:max-h-[calc(100vh-180px)] shadow-xs">
+        <div class="flex items-center justify-between pb-2">
+          <h2 id="county-list-title" class="text-base font-bold text-[var(--foreground)]">Județe (42)</h2>
+          <a href="sectoare.html" class="text-xs text-[var(--primary)] underline-offset-2 hover:underline">Sectoare →</a>
+        </div>
+
+        <input
+          id="county-search"
+          type="text"
+          placeholder="Caută un județ…"
+          class="mb-3 w-full rounded-md border border-[var(--input)] bg-[var(--background)] px-3 py-1.5 text-sm outline-none focus:border-[var(--ring)]"
+        />
+
+        <ul id="county-list" class="flex-1 space-y-0.5 overflow-y-auto pr-1">
+          <!-- Rendered dynamically -->
+        </ul>
+      </aside>
+
+      <!-- Right Main: Map & Details Card -->
+      <main class="space-y-6">
+        <!-- SVG Map Container -->
+        <div class="relative overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 shadow-xs">
+          <svg id="romania-svg-map" class="h-auto w-full select-none" role="img" aria-label="Harta României">
+            <!-- Rendered dynamically -->
+          </svg>
+
+          <!-- Hover Tooltip -->
+          <div id="map-tooltip" class="pointer-events-none absolute left-6 top-6 hidden items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--foreground)] px-3.5 py-1.5 text-sm font-semibold text-white shadow-lg">
+            <span id="tooltip-name"></span>
+            <span id="tooltip-sector" class="text-xs font-normal text-white/80"></span>
+          </div>
+        </div>
+
+        <!-- Selected County Info & Articles Card -->
+        <section id="selected-county-card" class="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-xs">
+          <!-- Rendered dynamically -->
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <div id="site-footer"></div>
+
+  <!-- Scripts -->
+  <script src="assets/js/romania-data.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script>
+    (function () {
+      renderSiteHeader("harta");
+      renderSiteFooter();
+
+      let activeSector = "all";
+      let activeCounty = getParam("county") || null;
+      let hoveredCounty = null;
+      let searchQuery = "";
+
+      const sectorContainer = document.getElementById("sector-filters");
+      const countyList = document.getElementById("county-list");
+      const countySearch = document.getElementById("county-search");
+      const mapSvg = document.getElementById("romania-svg-map");
+      const tooltip = document.getElementById("map-tooltip");
+      const tooltipName = document.getElementById("tooltip-name");
+      const tooltipSector = document.getElementById("tooltip-sector");
+      const cardContainer = document.getElementById("selected-county-card");
+      const listTitle = document.getElementById("county-list-title");
+
+      // 1. Render Sector Filter Buttons
+      function renderSectors() {
+        sectorContainer.innerHTML = `
+          <button data-sector="all" class="sector-btn rounded-md px-3 py-1 text-xs font-semibold transition-colors ${
+            activeSector === "all" ? "bg-[var(--primary)] text-white shadow-xs" : "bg-[var(--secondary)] text-[var(--foreground)] hover:bg-[var(--secondary)]/80"
+          }">Toată țara</button>
+        ` + window.ROMANIA_SECTORS.map(s => `
+          <button data-sector="${s.id}" class="sector-btn rounded-md px-2.5 py-1 text-xs font-semibold transition-colors ${
+            activeSector === s.id ? "bg-[var(--primary)] text-white shadow-xs" : "bg-[var(--secondary)] text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/80 hover:text-[var(--foreground)]"
+          }">${s.name}</button>
+        `).join("");
+
+        document.querySelectorAll(".sector-btn").forEach(btn => {
+          btn.addEventListener("click", () => {
+            activeSector = btn.getAttribute("data-sector");
+            renderSectors();
+            renderCountyList();
+            updateMapHighlights();
+          });
+        });
+      }
+
+      // 2. Render Map
+      function renderMap() {
+        mapSvg.setAttribute("viewBox", window.MAP_VIEWBOX);
+        mapSvg.innerHTML = window.ROMANIA_COUNTIES.map(c => `
+          <path
+            id="path-${c.slug}"
+            data-slug="${c.slug}"
+            data-name="${c.name}"
+            d="${c.d}"
+            class="county-path"
+            tabindex="0"
+          ><title>${c.name}</title></path>
+        `).join("");
+
+        mapSvg.querySelectorAll(".county-path").forEach(path => {
+          const slug = path.getAttribute("data-slug");
+          const name = path.getAttribute("data-name");
+
+          path.addEventListener("mouseenter", () => {
+            hoveredCounty = slug;
+            const sec = AppStore.getSectorByCounty(slug);
+            tooltipName.textContent = name;
+            tooltipSector.textContent = sec ? ` · Sector ${sec.name}` : "";
+            tooltip.classList.remove("hidden");
+            tooltip.classList.add("flex");
+            updateMapHighlights();
+          });
+
+          path.addEventListener("mouseleave", () => {
+            hoveredCounty = null;
+            tooltip.classList.add("hidden");
+            tooltip.classList.remove("flex");
+            updateMapHighlights();
+          });
+
+          path.addEventListener("click", () => {
+            selectCounty(slug);
+          });
+        });
+
+        updateMapHighlights();
+      }
+
+      function updateMapHighlights() {
+        document.querySelectorAll(".county-path").forEach(path => {
+          const slug = path.getAttribute("data-slug");
+          const sec = AppStore.getSectorByCounty(slug);
+          const inSector = activeSector === "all" || (sec && sec.id === activeSector);
+          const isSelected = slug === activeCounty;
+          const isHovered = slug === hoveredCounty;
+
+          path.setAttribute("data-active", isSelected || isHovered ? "true" : "false");
+          path.style.opacity = inSector ? "1" : "0.35";
+          path.style.filter = inSector ? "" : "grayscale(50%)";
+        });
+      }
+
+      // 3. Render County List
+      function renderCountyList() {
+        const withArticles = AppStore.countiesWithArticles();
+        const filtered = window.ROMANIA_COUNTIES.filter(c => {
+          if (activeSector !== "all") {
+            const sec = AppStore.getSectorByCounty(c.slug);
+            if (!sec || sec.id !== activeSector) return false;
+          }
+          if (searchQuery.trim()) {
+            return c.name.toLowerCase().includes(searchQuery.toLowerCase());
+          }
+          return true;
+        });
+
+        const activeSecObj = window.ROMANIA_SECTORS.find(s => s.id === activeSector);
+        listTitle.textContent = activeSector === "all" ? `Județe (${filtered.length})` : `${activeSecObj.name} (${filtered.length})`;
+
+        countyList.innerHTML = filtered.map(c => {
+          const isSelected = c.slug === activeCounty;
+          const hasArt = withArticles.includes(c.slug);
+
+          return `
+            <li>
+              <button
+                data-slug="${c.slug}"
+                class="county-item-btn flex w-full items-center justify-between rounded-md px-3 py-1.5 text-left text-sm transition-colors ${
+                  isSelected ? "bg-[var(--primary)] font-medium text-white" : "text-[var(--foreground)] hover:bg-[var(--secondary)]"
+                }"
+              >
+                <span>${c.name}</span>
+                ${hasArt ? `<span class="text-[10px] font-bold ${isSelected ? "text-white/80" : "text-emerald-600"}">● Articole</span>` : ""}
+              </button>
+            </li>
+          `;
+        }).join("");
+
+        countyList.querySelectorAll(".county-item-btn").forEach(btn => {
+          btn.addEventListener("click", () => {
+            selectCounty(btn.getAttribute("data-slug"));
+          });
+        });
+      }
+
+      // 4. Select a County & Render Card
+      function selectCounty(slug) {
+        activeCounty = slug;
+        renderCountyList();
+        updateMapHighlights();
+        renderCard();
+
+        // Update URL cleanly without reloading
+        const url = new URL(window.location);
+        url.searchParams.set("county", slug);
+        window.history.replaceState({}, "", url);
+      }
+
+      function renderCard() {
+        if (!activeCounty) {
+          cardContainer.innerHTML = `
+            <div class="py-8 text-center">
+              <svg class="mx-auto h-10 w-10 text-[var(--primary)]/60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
+              <h3 class="mt-2 text-lg font-bold text-[var(--foreground)]">Alege un județ de pe hartă sau din listă</h3>
+              <p class="mx-auto mt-1 max-w-md text-sm text-[var(--muted-foreground)]">Atinge un județ pentru a citi recomandările de vizitat, gastronomia și traseele de drumeție.</p>
+              <div class="mt-4 flex flex-wrap justify-center gap-2">
+                <a href="panou.html" class="inline-flex items-center gap-1.5 rounded-md bg-[var(--primary)] px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-[var(--primary-hover)]">+ Adaugă Articol în Panou</a>
+                <a href="sectoare.html" class="inline-flex items-center gap-1.5 rounded-md border border-[var(--input)] bg-[var(--secondary)] px-4 py-2 text-xs font-semibold hover:bg-[var(--secondary)]/80">Vezi Sectoarele României</a>
+              </div>
+            </div>
+          `;
+          return;
+        }
+
+        const countyObj = AppStore.getCountyObj(activeCounty);
+        const countyName = countyObj ? countyObj.name : activeCounty;
+        const note = window.COUNTY_NOTES ? window.COUNTY_NOTES[activeCounty] : null;
+        const sec = AppStore.getSectorByCounty(activeCounty);
+        const articles = AppStore.getCountyArticles(activeCounty);
+
+        cardContainer.innerHTML = `
+          <div class="flex flex-wrap items-baseline justify-between gap-3 border-b border-[var(--border)] pb-4">
+            <div>
+              <div class="flex items-center gap-2">
+                <h2 class="text-3xl font-bold text-[var(--primary)]">${countyName}</h2>
+                ${sec ? `<span class="rounded-md bg-[var(--secondary)] px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider text-[var(--accent)]">Sector ${sec.name}</span>` : ""}
+              </div>
+              ${note && note.intro ? `<p class="mt-2 text-base text-[var(--muted-foreground)]">${note.intro}</p>` : ""}
+            </div>
+
+            <div class="flex items-center gap-2">
+              <a href="panou.html?judet=${activeCounty}" class="inline-flex items-center gap-1.5 rounded-md border border-[var(--input)] bg-[var(--secondary)] px-3 py-1.5 text-xs font-semibold hover:bg-[var(--secondary)]/80">
+                <span>+ Adaugă Articol</span>
+              </a>
+              <a href="judet.html?judet=${activeCounty}" class="inline-flex items-center gap-1 text-sm font-semibold text-[var(--primary)] hover:underline">
+                <span>Pagina județului →</span>
+              </a>
+            </div>
+          </div>
+
+          <div class="mt-6">
+            <h3 class="text-lg font-bold text-[var(--foreground)] mb-4">Articole turistice despre ${countyName} (${articles.length})</h3>
+
+            <div class="grid gap-4 sm:grid-cols-3">
+              ${window.ARTICLE_TOPICS.map(topic => {
+                const art = articles.find(a => a.slug === topic.slug);
+                if (!art) {
+                  return `
+                    <div class="flex flex-col justify-between rounded-lg border border-dashed border-[var(--border)] bg-[var(--secondary)]/40 p-4">
+                      <div>
+                        <span class="text-xs font-bold uppercase tracking-wide text-[var(--accent)]">${topic.label}</span>
+                        <p class="mt-1 text-xs text-[var(--muted-foreground)]">${topic.blurb}</p>
+                      </div>
+                      <div class="mt-4 pt-2">
+                        <a href="panou.html?judet=${activeCounty}&topic=${topic.slug}" class="inline-flex items-center gap-1 text-xs font-semibold text-[var(--primary)] hover:underline">
+                          + Scrie acest articol
+                        </a>
+                      </div>
+                    </div>
+                  `;
+                }
+
+                return `
+                  <a href="articol.html?judet=${activeCounty}&slug=${art.slug}" class="flex flex-col justify-between rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 shadow-xs transition-all hover:border-[var(--primary)] hover:shadow-md text-decoration-none">
+                    <div>
+                      <span class="text-xs font-bold uppercase tracking-wide text-[var(--accent)]">${topic.label}</span>
+                      <h4 class="mt-1 text-base font-bold text-[var(--foreground)] line-clamp-2">${art.title}</h4>
+                      <p class="mt-1 text-xs text-[var(--muted-foreground)] line-clamp-2">${art.excerpt}</p>
+                    </div>
+                    <span class="mt-3 block text-xs font-medium text-[var(--primary)]">Citește · ${art.readMinutes} min</span>
+                  </a>
+                `;
+              }).join("")}
+
+              ${articles.filter(a => !window.ARTICLE_TOPICS.some(t => t.slug === a.slug)).map(cArt => `
+                <a href="articol.html?judet=${activeCounty}&slug=${cArt.slug}" class="flex flex-col justify-between rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-4 shadow-xs transition-all hover:border-emerald-500 text-decoration-none">
+                  <div>
+                    <span class="rounded-sm bg-emerald-500/20 px-1.5 py-0.5 text-[10px] font-bold uppercase text-emerald-800">${cArt.topicLabel || "Special"}</span>
+                    <h4 class="mt-1 text-base font-bold text-[var(--foreground)] line-clamp-2">${cArt.title}</h4>
+                    <p class="mt-1 text-xs text-[var(--muted-foreground)] line-clamp-2">${cArt.excerpt}</p>
+                  </div>
+                  <span class="mt-3 block text-xs font-medium text-emerald-700">Citește · ${cArt.readMinutes} min</span>
+                </a>
+              `).join("")}
+            </div>
+          </div>
+        `;
+      }
+
+      countySearch.addEventListener("input", (e) => {
+        searchQuery = e.target.value;
+        renderCountyList();
+      });
+
+      window.addEventListener("discover-romania-articles-updated", () => {
+        renderCountyList();
+        renderCard();
+      });
+
+      renderSectors();
+      renderMap();
+      renderCountyList();
+      renderCard();
+    })();
+  </script>
+</body>
+</html>

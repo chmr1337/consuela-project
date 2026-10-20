@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sectoarele și Regiunile României — Discover Romania</title>
+  <meta name="description" content="Explorează România pe sectoare istorice și geografice: Transilvania, Muntenia, Moldova, Oltenia, Banat, Crișana, Maramureș, Bucovina, Dobrogea și București.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+  <div id="site-header"></div>
+
+  <!-- Hero Header -->
+  <section class="border-b border-[var(--border)] bg-gradient-to-b from-[var(--secondary)] via-[var(--background)] to-[var(--background)] px-6 py-12">
+    <div class="mx-auto max-w-5xl text-center">
+      <div class="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-white px-3 py-1 text-xs font-semibold text-[var(--primary)] shadow-xs">
+        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v20m10-10H2m18.07-7.07l-1.41 1.41M5.34 18.66l-1.41 1.41M18.66 18.66l-1.41-1.41M5.34 5.34l-1.41 1.41"/></svg>
+        <span>Ghid Geografic & Istoric</span>
+      </div>
+      <h1 class="mt-3 text-4xl font-bold tracking-tight text-[var(--foreground)] sm:text-5xl">
+        Sectoarele și Regiunile României
+      </h1>
+      <p class="mx-auto mt-4 max-w-2xl text-base text-[var(--muted-foreground)] sm:text-lg">
+        De la cetățile medievale din Transilvania și mănăstirile pictate ale Bucovinei, până la
+        canalele sălbatice ale Deltei Dunării și viața cosmopolită a Bucureștiului. Alege o zonă
+        pentru a-i citi poveștile și atracțiile.
+      </p>
+      <div class="mt-6 flex flex-wrap justify-center gap-3">
+        <a href="index.html" class="inline-flex items-center gap-2 rounded-md bg-[var(--primary)] px-4 py-2 text-sm font-semibold text-white shadow-xs hover:bg-[var(--primary-hover)]">
+          <span>Explorează pe Harta Interactivă</span>
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        </a>
+        <a href="panou.html" class="inline-flex items-center gap-2 rounded-md border border-[var(--border)] bg-white px-4 py-2 text-sm font-semibold hover:bg-[var(--secondary)]">
+          <svg class="h-4 w-4 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+          <span>Adaugă Articol într-un Sector</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Sectors Grid -->
+  <section class="flex-1 mx-auto w-full max-w-6xl px-6 pt-10">
+    <div id="sectors-grid" class="grid gap-6 md:grid-cols-2">
+      <!-- Rendered dynamically -->
+    </div>
+  </section>
+
+  <!-- Bottom CTA -->
+  <section class="mx-auto mt-16 max-w-5xl px-6 mb-12">
+    <div class="rounded-2xl border border-[var(--primary)]/20 bg-gradient-to-r from-[var(--primary)]/10 via-[var(--secondary)] to-[var(--primary)]/5 p-8 text-center sm:p-10">
+      <h2 class="text-2xl font-bold tracking-tight text-[var(--foreground)] sm:text-3xl">
+        Lipsește o poveste sau un loc drag din județul tău?
+      </h2>
+      <p className="mx-auto mt-2 max-w-xl text-sm text-[var(--muted-foreground)] sm:text-base">
+        Poți adăuga oricând un articol complet cu fotografii, secțiuni de text și sfaturi practice
+        folosind noul nostru panou de redactare.
+      </p>
+      <div class="mt-6">
+        <a href="panou.html" class="inline-flex items-center gap-2 rounded-lg bg-[var(--primary)] px-6 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-[var(--primary-hover)]">
+          <span>Deschide Panoul de Redactare</span>
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <div id="site-footer"></div>
+
+  <!-- Scripts -->
+  <script src="assets/js/romania-data.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script>
+    (function () {
+      renderSiteHeader("sectoare");
+      renderSiteFooter();
+
+      const container = document.getElementById("sectors-grid");
+
+      function render() {
+        container.innerHTML = window.ROMANIA_SECTORS.map(sec => {
+          let totalArts = 0;
+          sec.counties.forEach(cSlug => {
+            totalArts += AppStore.getCountyArticles(cSlug).length;
+          });
+
+          return `
+            <div class="flex flex-col justify-between rounded-xl border border-[var(--border)] bg-white p-6 shadow-xs transition-all hover:border-[var(--primary)]/50 hover:shadow-md">
+              <div>
+                <div class="flex items-center justify-between gap-2">
+                  <span class="rounded-md bg-[var(--secondary)] px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-[var(--accent)]">
+                    Sector ${sec.name}
+                  </span>
+                  <span class="text-xs font-semibold text-[var(--muted-foreground)]">
+                    ${totalArts} articole scrise
+                  </span>
+                </div>
+
+                <h2 class="mt-3 text-2xl font-bold text-[var(--foreground)]">${sec.name}</h2>
+                <p class="mt-1 text-xs font-semibold text-[var(--primary)]">${sec.subtitle}</p>
+                <p class="mt-3 text-sm leading-relaxed text-[var(--muted-foreground)]">${sec.description}</p>
+
+                <!-- Highlights -->
+                <div class="mt-4">
+                  <span class="block text-xs font-bold uppercase tracking-wide text-[var(--muted-foreground)]">Repere emblematice:</span>
+                  <ul class="mt-2 space-y-1">
+                    ${sec.highlights.map(h => `
+                      <li class="flex items-center gap-2 text-xs text-[var(--foreground)]">
+                        <span class="h-1.5 w-1.5 rounded-full bg-[var(--primary)] shrink-0"></span>
+                        <span>${h}</span>
+                      </li>
+                    `).join("")}
+                  </ul>
+                </div>
+
+                <!-- Counties tags -->
+                <div class="mt-5 border-t border-[var(--border)]/60 pt-4">
+                  <span class="block text-xs font-semibold uppercase tracking-wide text-[var(--muted-foreground)] mb-2">
+                    Județe incluse (${sec.counties.length}):
+                  </span>
+                  <div class="flex flex-wrap gap-1.5">
+                    ${sec.counties.map(cSlug => {
+                      const cObj = AppStore.getCountyObj(cSlug);
+                      const hasArts = AppStore.getCountyArticles(cSlug).length > 0;
+                      return `
+                        <a href="judet.html?judet=${cSlug}" class="rounded-md px-2 py-1 text-xs font-medium transition-colors ${
+                          hasArts ? "bg-[var(--primary)]/10 text-[var(--primary)] hover:bg-[var(--primary)]/20" : "bg-[var(--secondary)] text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/80"
+                        }">
+                          ${cObj ? cObj.name : cSlug} ${hasArts ? "✓" : ""}
+                        </a>
+                      `;
+                    }).join("")}
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-[var(--border)] pt-4">
+                <a href="index.html?county=${sec.counties[0]}" class="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--primary)] hover:underline">
+                  <span>Vezi pe hartă →</span>
+                </a>
+                <a href="panou.html?sector=${sec.id}&judet=${sec.counties[0]}" class="inline-flex items-center gap-1.5 rounded-md bg-[var(--secondary)] px-3 py-1.5 text-xs font-semibold text-[var(--secondary-foreground)] hover:bg-[var(--secondary)]/80">
+                  <span>+ Adaugă articol în ${sec.name}</span>
+                </a>
+              </div>
+            </div>
+          `;
+        }).join("");
+      }
+
+      window.addEventListener("discover-romania-articles-updated", render);
+      render();
+    })();
+  </script>
+</body>
+</html>

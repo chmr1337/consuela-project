@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panou de Redactare — Discover Romania</title>
+  <meta name="description" content="Adaugă și editează articole turistice pentru fiecare sector și județ al României.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+  <div id="site-header"></div>
+
+  <!-- Header Banner -->
+  <section class="border-b border-[var(--border)] bg-gradient-to-b from-[var(--secondary)] via-[var(--background)] to-[var(--background)] px-6 py-8">
+    <div class="mx-auto max-w-6xl">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[var(--primary)]">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+            <span>Panou de Administrare Turism</span>
+          </div>
+          <h1 class="mt-1 text-3xl font-bold tracking-tight text-[var(--foreground)] sm:text-4xl">
+            Redactează Articole pe Sectoare & Județe
+          </h1>
+          <p class="mt-2 text-sm text-[var(--muted-foreground)] sm:text-base">
+            Scrie, actualizează și publică ghiduri turistice, povești culinare și trasee în natură
+            pentru orice zonă din România.
+          </p>
+        </div>
+
+        <div id="stats-pills" class="flex flex-wrap gap-2 text-xs font-medium">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <div class="mt-6 flex flex-wrap gap-2 border-b border-[var(--border)] pb-1">
+        <button id="tab-btn-write" class="tab-btn flex items-center gap-2 rounded-t-lg px-4 py-2 text-sm font-semibold border-b-2 border-[var(--primary)] bg-[var(--background)] text-[var(--primary)]">
+          Scrie articol nou
+        </button>
+        <button id="tab-btn-list" class="tab-btn flex items-center gap-2 rounded-t-lg px-4 py-2 text-sm font-semibold text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/60">
+          Articole existente (<span id="total-articles-count">0</span>)
+        </button>
+        <button id="tab-btn-backup" class="tab-btn flex items-center gap-2 rounded-t-lg px-4 py-2 text-sm font-semibold text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/60">
+          Backup & Import JSON
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content Container -->
+  <div class="flex-1 mx-auto w-full max-w-6xl px-6 pt-6">
+    <!-- Success Alert -->
+    <div id="success-alert" class="hidden mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-emerald-800">
+      <div class="flex items-center gap-3">
+        <svg class="h-5 w-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        <span id="success-text" class="text-sm font-medium"></span>
+      </div>
+      <a id="success-link" href="#" class="hidden items-center gap-1.5 rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-emerald-700">
+        <span>Vezi articolul pe site →</span>
+      </a>
+    </div>
+
+    <!-- TAB 1: WRITE ARTICLE -->
+    <div id="tab-write" class="grid gap-8 lg:grid-cols-[1fr_360px]">
+      <form id="article-form" class="space-y-6">
+        <!-- Step 1: Location -->
+        <div class="rounded-xl border border-[var(--border)] bg-white p-6 shadow-xs">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <h2 class="flex items-center gap-2 text-lg font-bold">
+              <span class="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--primary)] text-xs font-bold text-white">1</span>
+              Alege Sectorul și Județul
+            </h2>
+            <span id="current-sector-badge" class="rounded-md bg-[var(--secondary)] px-2.5 py-1 text-xs font-semibold text-[var(--secondary-foreground)]"></span>
+          </div>
+
+          <div class="mt-4">
+            <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">
+              Filtrează după Sector / Regiune istorică:
+            </label>
+            <div id="form-sector-pills" class="flex flex-wrap gap-1.5">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+
+          <div class="mt-4 grid gap-4 sm:grid-cols-2">
+            <div>
+              <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">Județ destinație:</label>
+              <select id="form-county-select" class="w-full rounded-md border border-[var(--input)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--ring)]">
+                <!-- Rendered dynamically -->
+              </select>
+            </div>
+            <div>
+              <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">Inspirație / Șablon:</label>
+              <button type="button" id="btn-load-template" class="flex w-full items-center justify-center gap-2 rounded-md border border-[var(--input)] bg-[var(--secondary)] px-3 py-2 text-sm font-medium hover:bg-[var(--secondary)]/80">
+                <span>✨ Încarcă un șablon orientativ</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2: Topic Selection -->
+        <div class="rounded-xl border border-[var(--border)] bg-white p-6 shadow-xs">
+          <h2 class="flex items-center gap-2 text-lg font-bold">
+            <span class="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--primary)] text-xs font-bold text-white">2</span>
+            Alege Categoria / Subiectul
+          </h2>
+
+          <div class="mt-4 grid gap-3 sm:grid-cols-3" id="topic-radio-group">
+            <!-- Topics rendered dynamically -->
+          </div>
+
+          <div class="mt-3">
+            <label class="flex cursor-pointer items-center gap-2 rounded-lg border border-[var(--border)] p-3">
+              <input type="radio" name="topic" value="custom" id="topic-custom">
+              <span class="text-sm font-semibold">Subiect personalizat (ex: Festivaluri, Cazări inedite, Trasee cu copii)</span>
+            </label>
+            <div id="custom-topic-input-wrap" class="mt-2 hidden pl-6">
+              <input type="text" id="custom-topic-input" placeholder="Numele noului subiect (ex: Castele și legende locale)" class="w-full rounded-md border border-[var(--input)] px-3 py-2 text-sm outline-none">
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3: Article Info -->
+        <div class="rounded-xl border border-[var(--border)] bg-white p-6 shadow-xs">
+          <h2 class="flex items-center gap-2 text-lg font-bold">
+            <span class="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--primary)] text-xs font-bold text-white">3</span>
+            Informații despre Articol
+          </h2>
+
+          <div class="mt-4 space-y-4">
+            <div>
+              <label class="mb-1 block text-sm font-semibold">Titlul Articolului:</label>
+              <input type="text" id="article-title" placeholder="Ex: Cluj: Centrul vechi, sarea de la Turda și dealurile din jur" class="w-full rounded-md border border-[var(--input)] px-3.5 py-2 text-base font-medium outline-none focus:border-[var(--ring)]" required>
+            </div>
+
+            <div>
+              <label class="mb-1 block text-sm font-semibold">Scurt rezumat (Excerpt):</label>
+              <textarea id="article-excerpt" rows="2" placeholder="O scurtă descriere atractivă pentru cititori." class="w-full rounded-md border border-[var(--input)] px-3 py-2 text-sm outline-none focus:border-[var(--ring)]"></textarea>
+            </div>
+
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label class="mb-1 block text-sm font-semibold">Timp de lectură (minute):</label>
+                <input type="number" id="article-minutes" min="1" max="60" value="5" class="w-full rounded-md border border-[var(--input)] px-3 py-2 text-sm outline-none focus:border-[var(--ring)]">
+              </div>
+
+              <div>
+                <label class="mb-1 block text-sm font-semibold">Imagine de copertă (URL opțional):</label>
+                <input type="url" id="article-image" placeholder="https://images.unsplash.com/..." class="w-full rounded-md border border-[var(--input)] px-3 py-2 text-sm outline-none focus:border-[var(--ring)]">
+              </div>
+            </div>
+
+            <!-- Quick images -->
+            <div>
+              <label class="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">Alege rapid o imagine reprezentativă:</label>
+              <div id="preset-images-pills" class="flex flex-wrap gap-1.5">
+                <!-- Rendered dynamically -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 4: Content Sections -->
+        <div class="rounded-xl border border-[var(--border)] bg-white p-6 shadow-xs">
+          <div class="flex items-center justify-between">
+            <h2 class="flex items-center gap-2 text-lg font-bold">
+              <span class="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--primary)] text-xs font-bold text-white">4</span>
+              Secțiuni de Conținut
+            </h2>
+            <button type="button" id="btn-add-section" class="flex items-center gap-1.5 rounded-md bg-[var(--secondary)] px-3 py-1.5 text-xs font-semibold hover:bg-[var(--secondary)]/80">
+              + Adaugă secțiune
+            </button>
+          </div>
+
+          <div id="sections-container" class="mt-4 space-y-4">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- Step 5: Practical Tips -->
+        <div class="rounded-xl border border-[var(--border)] bg-white p-6 shadow-xs">
+          <div class="flex items-center justify-between">
+            <h2 class="flex items-center gap-2 text-lg font-bold">
+              <span class="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--primary)] text-xs font-bold text-white">5</span>
+              Recomandări Practice («Pe scurt»)
+            </h2>
+            <button type="button" id="btn-add-tip" class="flex items-center gap-1.5 rounded-md bg-[var(--secondary)] px-3 py-1.5 text-xs font-semibold hover:bg-[var(--secondary)]/80">
+              + Adaugă sfat
+            </button>
+          </div>
+
+          <div id="tips-container" class="mt-4 space-y-2">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- Submit Buttons -->
+        <div class="flex flex-wrap items-center justify-between gap-4 border-t border-[var(--border)] pt-6">
+          <span class="text-xs text-[var(--muted-foreground)]">Articolul este salvat și devine accesibil instantaneu pe site.</span>
+          <button type="submit" class="flex items-center gap-2 rounded-lg bg-[var(--primary)] px-6 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-[var(--primary-hover)]">
+            <span>Publică Articolul</span>
+          </button>
+        </div>
+      </form>
+
+      <!-- Right Column: Live Preview Card -->
+      <aside class="space-y-6">
+        <div class="sticky top-20 space-y-6">
+          <div class="rounded-xl border border-[var(--border)] bg-white p-5 shadow-xs">
+            <div class="flex items-center justify-between border-b border-[var(--border)] pb-3">
+              <span class="text-xs font-semibold text-[var(--primary)]">👁️ Previzualizare Card</span>
+              <span id="preview-meta" class="text-xs text-[var(--muted-foreground)]"></span>
+            </div>
+
+            <div id="preview-img-wrap" class="hidden mt-3 aspect-video overflow-hidden rounded-lg">
+              <img id="preview-img" src="" alt="Preview" class="h-full w-full object-cover">
+            </div>
+
+            <div class="mt-3">
+              <span id="preview-topic-badge" class="inline-block rounded-md bg-[var(--secondary)] px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-[var(--accent)]">
+                Locuri de vizitat
+              </span>
+              <h3 id="preview-title" class="mt-1.5 text-base font-bold text-[var(--foreground)]">
+                Titlul articolului va apărea aici
+              </h3>
+              <p id="preview-excerpt" class="mt-1 text-xs text-[var(--muted-foreground)] line-clamp-3">
+                Rezumatul articolului va fi afișat în acest spațiu...
+              </p>
+              <span id="preview-read-time" class="mt-3 block text-xs font-semibold text-[var(--primary)]">
+                Citește · 5 min
+              </span>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- TAB 2: ARTICLE LIBRARY -->
+    <div id="tab-list" class="hidden space-y-6">
+      <div class="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-[var(--border)] bg-white p-4 shadow-xs">
+        <div class="flex flex-1 flex-wrap items-center gap-3">
+          <input type="text" id="list-search-input" placeholder="Caută în titlu sau conținut..." class="min-w-[200px] flex-1 rounded-md border border-[var(--input)] bg-[var(--background)] px-3 py-1.5 text-sm outline-none">
+          <select id="list-sector-filter" class="rounded-md border border-[var(--input)] px-3 py-1.5 text-sm outline-none"></select>
+          <select id="list-county-filter" class="rounded-md border border-[var(--input)] px-3 py-1.5 text-sm outline-none"></select>
+        </div>
+      </div>
+
+      <div id="library-grid" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+
+    <!-- TAB 3: BACKUP & IMPORT/EXPORT -->
+    <div id="tab-backup" class="hidden mx-auto max-w-2xl space-y-6">
+      <div id="backup-msg" class="hidden rounded-lg border border-[var(--primary)]/30 bg-[var(--primary)]/10 p-3 text-center text-sm font-medium text-[var(--primary)]"></div>
+
+      <div class="rounded-xl border border-[var(--border)] bg-white p-6 shadow-xs">
+        <h3 class="text-lg font-bold">Exportă Articolele Personalizate</h3>
+        <p class="mt-1 text-sm text-[var(--muted-foreground)]">Copiază datele JSON ale articolelor adăugate pentru backup.</p>
+        <button type="button" id="btn-export-json" class="mt-4 rounded-md bg-[var(--primary)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--primary-hover)]">
+          Copiază JSON în clipboard
+        </button>
+      </div>
+
+      <div class="rounded-xl border border-[var(--border)] bg-white p-6 shadow-xs">
+        <h3 class="text-lg font-bold">Importă Articole din JSON</h3>
+        <p class="mt-1 text-sm text-[var(--muted-foreground)]">Lipește datele JSON exportate anterior.</p>
+        <textarea id="import-json-textarea" rows="5" placeholder='{"cluj": [...]}' class="mt-3 w-full font-mono text-xs rounded-md border border-[var(--input)] p-3 outline-none"></textarea>
+        <div class="mt-3 flex justify-end">
+          <button type="button" id="btn-import-json" class="rounded-md bg-[var(--secondary)] px-4 py-2 text-sm font-semibold hover:bg-[var(--secondary)]/80">
+            Încarcă JSON
+          </button>
+        </div>
+      </div>
+
+      <div class="rounded-xl border border-red-500/20 bg-red-500/5 p-6">
+        <h3 class="text-base font-bold text-red-700">Restaurare / Resetare Date</h3>
+        <p class="mt-1 text-xs text-[var(--muted-foreground)]">Șterge articolele adăugate local și revine la conținutul inițial.</p>
+        <button type="button" id="btn-reset-data" class="mt-4 rounded-md border border-red-500/30 bg-white px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-50">
+          Resetează la conținutul inițial
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="site-footer"></div>
+
+  <!-- Scripts -->
+  <script src="assets/js/romania-data.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script>
+    (function () {
+      renderSiteHeader("panou");
+      renderSiteFooter();
+
+      const PRESETS = [
+        { label: "Cetate / Monument", url: "https://images.unsplash.com/photo-1549880338-65ddcdfd017b?q=80&w=1200&auto=format&fit=crop" },
+        { label: "Munte & Drumeție", url: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=1200&auto=format&fit=crop" },
+        { label: "Bucate tradiționale", url: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=1200&auto=format&fit=crop" },
+        { label: "Oraș vechi", url: "https://images.unsplash.com/photo-1584646098378-0874589d76b1?q=80&w=1200&auto=format&fit=crop" },
+        { label: "Apă & Natură", url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200&auto=format&fit=crop" }
+      ];
+
+      let formSector = getParam("sector") || "all";
+      let formCounty = getParam("judet") || "cluj";
+      let formTopic = getParam("topic") || "locuri-de-vizitat";
+
+      let sections = [
+        { heading: "Puncte de atracție principale", body: "" },
+        { heading: "Istorie și atmosferă", body: "" }
+      ];
+      let tips = ["Cea mai bună perioadă pentru vizitare este primăvara târziu sau la începutul toamnei."];
+
+      // Tab switcher
+      const tabWrite = document.getElementById("tab-write");
+      const tabList = document.getElementById("tab-list");
+      const tabBackup = document.getElementById("tab-backup");
+      const btnWrite = document.getElementById("tab-btn-write");
+      const btnList = document.getElementById("tab-btn-list");
+      const btnBackup = document.getElementById("tab-btn-backup");
+
+      function switchTab(t) {
+        tabWrite.classList.toggle("hidden", t !== "write");
+        tabList.classList.toggle("hidden", t !== "list");
+        tabBackup.classList.toggle("hidden", t !== "backup");
+
+        btnWrite.className = `tab-btn flex items-center gap-2 rounded-t-lg px-4 py-2 text-sm font-semibold ${
+          t === "write" ? "border-b-2 border-[var(--primary)] bg-[var(--background)] text-[var(--primary)]" : "text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/60"
+        }`;
+        btnList.className = `tab-btn flex items-center gap-2 rounded-t-lg px-4 py-2 text-sm font-semibold ${
+          t === "list" ? "border-b-2 border-[var(--primary)] bg-[var(--background)] text-[var(--primary)]" : "text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/60"
+        }`;
+        btnBackup.className = `tab-btn flex items-center gap-2 rounded-t-lg px-4 py-2 text-sm font-semibold ${
+          t === "backup" ? "border-b-2 border-[var(--primary)] bg-[var(--background)] text-[var(--primary)]" : "text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/60"
+        }`;
+
+        if (t === "list") renderArticleLibrary();
+      }
+
+      btnWrite.addEventListener("click", () => switchTab("write"));
+      btnList.addEventListener("click", () => switchTab("list"));
+      btnBackup.addEventListener("click", () => switchTab("backup"));
+
+      // 1. Render Stats
+      function updateStats() {
+        const total = AppStore.getAllArticles().length;
+        const countWith = AppStore.countiesWithArticles().length;
+        document.getElementById("total-articles-count").textContent = total;
+
+        document.getElementById("stats-pills").innerHTML = `
+          <div class="rounded-lg border border-[var(--border)] bg-white px-3 py-2 shadow-xs">
+            📖 <b>${total}</b> articole totale
+          </div>
+          <div class="rounded-lg border border-[var(--border)] bg-white px-3 py-2 shadow-xs">
+            🗺️ <b>${countWith}</b> / 42 județe active
+          </div>
+        `;
+      }
+
+      // 2. Form Sector Pills
+      const sectorPillsWrap = document.getElementById("form-sector-pills");
+      const countySelect = document.getElementById("form-county-select");
+      const sectorBadge = document.getElementById("current-sector-badge");
+
+      function renderFormSectors() {
+        sectorPillsWrap.innerHTML = `
+          <button type="button" data-sec="all" class="form-sec-btn rounded-md px-2.5 py-1 text-xs font-semibold ${
+            formSector === "all" ? "bg-[var(--primary)] text-white" : "bg-[var(--secondary)] text-[var(--foreground)]"
+          }">Toate</button>
+        ` + window.ROMANIA_SECTORS.map(s => `
+          <button type="button" data-sec="${s.id}" class="form-sec-btn rounded-md px-2.5 py-1 text-xs font-semibold ${
+            formSector === s.id ? "bg-[var(--primary)] text-white" : "bg-[var(--secondary)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+          }">${s.name}</button>
+        `).join("");
+
+        sectorPillsWrap.querySelectorAll(".form-sec-btn").forEach(btn => {
+          btn.addEventListener("click", () => {
+            formSector = btn.getAttribute("data-sec");
+            renderFormSectors();
+            renderCountySelect();
+          });
+        });
+
+        const activeSec = AppStore.getSectorByCounty(formCounty);
+        sectorBadge.textContent = activeSec ? `Sector: ${activeSec.name}` : "";
+      }
+
+      function renderCountySelect() {
+        const filtered = window.ROMANIA_COUNTIES.filter(c => {
+          if (formSector === "all") return true;
+          const s = AppStore.getSectorByCounty(c.slug);
+          return s && s.id === formSector;
+        });
+
+        // Ensure formCounty belongs to current sector
+        if (formSector !== "all" && !filtered.some(c => c.slug === formCounty)) {
+          formCounty = filtered[0] ? filtered[0].slug : "cluj";
+        }
+
+        countySelect.innerHTML = filtered.map(c => `
+          <option value="${c.slug}" ${c.slug === formCounty ? "selected" : ""}>${c.name}</option>
+        `).join("");
+
+        updateLivePreview();
+      }
+
+      countySelect.addEventListener("change", (e) => {
+        formCounty = e.target.value;
+        const s = AppStore.getSectorByCounty(formCounty);
+        if (s) sectorBadge.textContent = `Sector: ${s.name}`;
+        updateLivePreview();
+      });
+
+      // 3. Topics
+      const topicRadioGroup = document.getElementById("topic-radio-group");
+      const customTopicInputWrap = document.getElementById("custom-topic-input-wrap");
+      const customTopicInput = document.getElementById("custom-topic-input");
+
+      function renderTopics() {
+        topicRadioGroup.innerHTML = window.ARTICLE_TOPICS.map(t => `
+          <label class="flex cursor-pointer flex-col rounded-lg border border-[var(--border)] p-3 hover:bg-[var(--secondary)]/40">
+            <div class="flex items-center gap-2">
+              <input type="radio" name="topic" value="${t.slug}" ${t.slug === formTopic ? "checked" : ""}>
+              <span class="font-semibold text-sm">${t.label}</span>
+            </div>
+            <p class="mt-1 text-xs text-[var(--muted-foreground)]">${t.blurb}</p>
+          </label>
+        `).join("");
+
+        document.querySelectorAll("input[name='topic']").forEach(r => {
+          r.addEventListener("change", () => {
+            formTopic = r.value;
+            customTopicInputWrap.classList.toggle("hidden", formTopic !== "custom");
+            updateLivePreview();
+          });
+        });
+      }
+
+      // 4. Preset images
+      const presetImagesWrap = document.getElementById("preset-images-pills");
+      const articleImage = document.getElementById("article-image");
+      presetImagesWrap.innerHTML = PRESETS.map(p => `
+        <button type="button" data-url="${p.url}" class="preset-img-btn rounded-md border border-[var(--border)] px-2.5 py-1 text-xs hover:bg-[var(--secondary)]">
+          ${p.label}
+        </button>
+      `).join("");
+
+      presetImagesWrap.querySelectorAll(".preset-img-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          articleImage.value = btn.getAttribute("data-url");
+          updateLivePreview();
+        });
+      });
+
+      articleImage.addEventListener("input", updateLivePreview);
+
+      // 5. Sections builder
+      const sectionsContainer = document.getElementById("sections-container");
+      function renderSections() {
+        sectionsContainer.innerHTML = sections.map((sec, i) => `
+          <div class="rounded-lg border border-[var(--border)] bg-[var(--background)] p-4 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase text-[var(--muted-foreground)]">Secțiunea ${i + 1}</span>
+              ${sections.length > 1 ? `<button type="button" data-idx="${i}" class="btn-del-sec text-xs text-red-600 hover:underline">Șterge</button>` : ""}
+            </div>
+            <input type="text" data-idx="${i}" class="sec-heading w-full rounded-md border border-[var(--input)] bg-white px-3 py-1.5 text-sm font-semibold outline-none" value="${sec.heading}" placeholder="Subtitlu secțiune" required>
+            <textarea data-idx="${i}" rows="3" class="sec-body w-full rounded-md border border-[var(--input)] bg-white px-3 py-1.5 text-sm outline-none" placeholder="Conținut..." required>${sec.body}</textarea>
+          </div>
+        `).join("");
+
+        sectionsContainer.querySelectorAll(".sec-heading").forEach(inp => {
+          inp.addEventListener("input", (e) => {
+            sections[e.target.dataset.idx].heading = e.target.value;
+          });
+        });
+        sectionsContainer.querySelectorAll(".sec-body").forEach(ta => {
+          ta.addEventListener("input", (e) => {
+            sections[e.target.dataset.idx].body = e.target.value;
+          });
+        });
+        sectionsContainer.querySelectorAll(".btn-del-sec").forEach(b => {
+          b.addEventListener("click", (e) => {
+            sections.splice(e.target.dataset.idx, 1);
+            renderSections();
+          });
+        });
+      }
+
+      document.getElementById("btn-add-section").addEventListener("click", () => {
+        sections.push({ heading: "", body: "" });
+        renderSections();
+      });
+
+      // 6. Tips builder
+      const tipsContainer = document.getElementById("tips-container");
+      function renderTips() {
+        tipsContainer.innerHTML = tips.map((t, i) => `
+          <div class="flex items-center gap-2">
+            <span class="h-2 w-2 rounded-full bg-[var(--primary)] shrink-0"></span>
+            <input type="text" data-idx="${i}" class="tip-input flex-1 rounded-md border border-[var(--input)] px-3 py-1.5 text-sm outline-none" value="${t}" placeholder="Sfat practic...">
+            ${tips.length > 1 ? `<button type="button" data-idx="${i}" class="btn-del-tip text-xs text-red-600 px-2">✕</button>` : ""}
+          </div>
+        `).join("");
+
+        tipsContainer.querySelectorAll(".tip-input").forEach(inp => {
+          inp.addEventListener("input", (e) => {
+            tips[e.target.dataset.idx] = e.target.value;
+          });
+        });
+        tipsContainer.querySelectorAll(".btn-del-tip").forEach(b => {
+          b.addEventListener("click", (e) => {
+            tips.splice(e.target.dataset.idx, 1);
+            renderTips();
+          });
+        });
+      }
+
+      document.getElementById("btn-add-tip").addEventListener("click", () => {
+        tips.push("");
+        renderTips();
+      });
+
+      // 7. Live Preview
+      const articleTitle = document.getElementById("article-title");
+      const articleExcerpt = document.getElementById("article-excerpt");
+      const articleMinutes = document.getElementById("article-minutes");
+
+      const previewMeta = document.getElementById("preview-meta");
+      const previewImgWrap = document.getElementById("preview-img-wrap");
+      const previewImg = document.getElementById("preview-img");
+      const previewTopicBadge = document.getElementById("preview-topic-badge");
+      const previewTitle = document.getElementById("preview-title");
+      const previewExcerpt = document.getElementById("preview-excerpt");
+      const previewReadTime = document.getElementById("preview-read-time");
+
+      function updateLivePreview() {
+        const cObj = AppStore.getCountyObj(formCounty);
+        const mins = articleMinutes.value || 5;
+
+        previewMeta.textContent = `${cObj ? cObj.name : formCounty} · ${mins} min`;
+        previewTitle.textContent = articleTitle.value || "Titlul articolului va apărea aici";
+        previewExcerpt.textContent = articleExcerpt.value || "Rezumatul articolului va apărea aici...";
+        previewReadTime.textContent = `Citește · ${mins} min`;
+
+        if (formTopic === "custom") {
+          previewTopicBadge.textContent = customTopicInput.value || "Special";
+        } else {
+          const tObj = window.ARTICLE_TOPICS.find(t => t.slug === formTopic);
+          previewTopicBadge.textContent = tObj ? tObj.label : "Articol";
+        }
+
+        if (articleImage.value.trim()) {
+          previewImgWrap.classList.remove("hidden");
+          previewImg.src = articleImage.value.trim();
+        } else {
+          previewImgWrap.classList.add("hidden");
+        }
+      }
+
+      articleTitle.addEventListener("input", updateLivePreview);
+      articleExcerpt.addEventListener("input", updateLivePreview);
+      articleMinutes.addEventListener("input", updateLivePreview);
+      customTopicInput.addEventListener("input", updateLivePreview);
+
+      // 8. Template Loader
+      document.getElementById("btn-load-template").addEventListener("click", () => {
+        const cObj = AppStore.getCountyObj(formCounty);
+        const name = cObj ? cObj.name : formCounty;
+        const note = window.COUNTY_NOTES ? window.COUNTY_NOTES[formCounty] : null;
+
+        if (formTopic === "locuri-de-vizitat") {
+          articleTitle.value = `${name}: Comori ascunse, cetăți și plimbări de neuitat`;
+          articleExcerpt.value = note && note.intro ? note.intro : `Cele mai frumoase atracții turistice și monumente din ${name}.`;
+          articleImage.value = PRESETS[0].url;
+          sections = [
+            { heading: note && note.highlights[0] ? note.highlights[0] : `Centrul vechi și atracțiile principale`, body: `O plimbare prin ${name} începe cel mai bine explorând centrul istoric, monumentele de patrimoniu și clădirile vechi bine conservate.` },
+            { heading: note && note.highlights[1] ? note.highlights[1] : `Cetăți și împrejurimi rurale`, body: `În jurul orașului găsești sate pitorești, biserici vechi și peisaje rurale nealterate.` }
+          ];
+        } else if (formTopic === "bucate-si-traditii") {
+          articleTitle.value = `Bucate tradiționale și obiceiuri locale în ${name}`;
+          articleExcerpt.value = `Mâncăruri autentice, rețete din bătrâni și meșteșuguri populare din județul ${name}.`;
+          articleImage.value = PRESETS[2].url;
+          sections = [
+            { heading: `Ce mănânci bun în județul ${name}`, body: `Mâncarea tradițională pune în valoare ingredientele locale: ciorbe acre, fripturi la ceaun și plăcinte rumenite.` },
+            { heading: `Piețe locale și meșteșugari`, body: `În târgurile săptămânale din sate găsești brânzeturi de munte și produse meșteșugărești făcute manual.` }
+          ];
+        } else {
+          articleTitle.value = `Trasee montane și natură sălbatică în ${name}`;
+          articleExcerpt.value = `Drumeții ușoare, păduri seculare și panorame spectaculoase din ${name}.`;
+          articleImage.value = PRESETS[1].url;
+          sections = [
+            { heading: note && note.highlights[2] ? note.highlights[2] : `Trasee de drumeție și belvederi`, body: `Cărările montane oferă trasee bine marcate pentru toate nivelurile de pregătire fizică.` }
+          ];
+        }
+
+        renderSections();
+        updateLivePreview();
+      });
+
+      // 9. Publish Form Handler
+      document.getElementById("article-form").addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        const slug = formTopic === "custom"
+          ? (customTopicInput.value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "articol-special")
+          : formTopic;
+
+        const topicLabel = formTopic === "custom"
+          ? (customTopicInput.value || "Articol Special")
+          : (window.ARTICLE_TOPICS.find(t => t.slug === formTopic)?.label || "Articol");
+
+        const newArticle = {
+          slug: slug,
+          title: articleTitle.value.trim(),
+          excerpt: articleExcerpt.value.trim() || articleTitle.value.trim(),
+          readMinutes: Number(articleMinutes.value) || 5,
+          sections: sections.filter(s => s.heading.trim() || s.body.trim()),
+          tips: tips.filter(t => t.trim().length > 0),
+          imageUrl: articleImage.value.trim() || undefined,
+          topicLabel: topicLabel,
+          isCustom: true,
+          createdAt: new Date().toISOString()
+        };
+
+        AppStore.saveArticle(formCounty, newArticle);
+
+        const alertEl = document.getElementById("success-alert");
+        const alertText = document.getElementById("success-text");
+        const alertLink = document.getElementById("success-link");
+
+        alertText.textContent = `Articolul «${newArticle.title}» a fost publicat cu succes pentru ${formCounty.toUpperCase()}!`;
+        alertLink.href = `articol.html?judet=${formCounty}&slug=${slug}`;
+        alertLink.classList.remove("hidden");
+        alertLink.classList.add("inline-flex");
+        alertEl.classList.remove("hidden");
+
+        updateStats();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+
+      // 10. Library renderer
+      const libraryGrid = document.getElementById("library-grid");
+      const listSearch = document.getElementById("list-search-input");
+      const listSector = document.getElementById("list-sector-filter");
+      const listCounty = document.getElementById("list-county-filter");
+
+      function renderArticleLibrary() {
+        listSector.innerHTML = `<option value="all">Toate Sectoarele</option>` + window.ROMANIA_SECTORS.map(s => `<option value="${s.id}">${s.name}</option>`).join("");
+        listCounty.innerHTML = `<option value="all">Toate Județele</option>` + window.ROMANIA_COUNTIES.map(c => `<option value="${c.slug}">${c.name}</option>`).join("");
+
+        const all = AppStore.getAllArticles();
+        const q = listSearch.value.toLowerCase().trim();
+        const secFilter = listSector.value;
+        const cFilter = listCounty.value;
+
+        const filtered = all.filter(({ countySlug, article }) => {
+          const s = AppStore.getSectorByCounty(countySlug);
+          if (secFilter !== "all" && (!s || s.id !== secFilter)) return false;
+          if (cFilter !== "all" && countySlug !== cFilter) return false;
+          if (q) {
+            const cObj = AppStore.getCountyObj(countySlug);
+            const matchCounty = (cObj && cObj.name.toLowerCase().includes(q)) || countySlug.includes(q);
+            const matchTitle = article.title.toLowerCase().includes(q);
+            const matchExcerpt = article.excerpt.toLowerCase().includes(q);
+            if (!matchCounty && !matchTitle && !matchExcerpt) return false;
+          }
+          return true;
+        });
+
+        libraryGrid.innerHTML = filtered.map(({ countySlug, article }) => {
+          const cObj = AppStore.getCountyObj(countySlug);
+          const s = AppStore.getSectorByCounty(countySlug);
+
+          return `
+            <div class="flex flex-col justify-between rounded-xl border border-[var(--border)] bg-white p-5 shadow-xs">
+              <div>
+                <div class="flex items-center justify-between text-[11px] mb-2">
+                  <span class="font-bold text-[var(--primary)]">${cObj ? cObj.name : countySlug} · ${s ? s.name : "România"}</span>
+                  ${article.isCustom ? `<span class="rounded-full bg-emerald-100 text-emerald-800 px-2 py-0.5 font-bold">Creat de tine</span>` : `<span class="rounded-full bg-gray-100 text-gray-600 px-2 py-0.5">Implicit</span>`}
+                </div>
+                <h4 class="font-bold text-base text-[var(--foreground)] line-clamp-2">${article.title}</h4>
+                <p class="mt-1 text-xs text-[var(--muted-foreground)] line-clamp-3">${article.excerpt}</p>
+              </div>
+
+              <div class="mt-4 pt-3 border-t border-[var(--border)] flex items-center justify-between">
+                <span class="text-xs text-[var(--muted-foreground)]">${article.readMinutes} min</span>
+                <div class="flex items-center gap-2">
+                  ${article.isCustom ? `<button data-c="${countySlug}" data-s="${article.slug}" class="btn-lib-del text-xs text-red-600 hover:underline">Șterge</button>` : ""}
+                  <a href="articol.html?judet=${countySlug}&slug=${article.slug}" class="rounded-md bg-[var(--secondary)] px-2.5 py-1 text-xs font-semibold hover:bg-[var(--secondary)]/80">Citește →</a>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join("");
+
+        libraryGrid.querySelectorAll(".btn-lib-del").forEach(b => {
+          b.addEventListener("click", () => {
+            if (confirm("Ești sigur că vrei să ștergi acest articol?")) {
+              AppStore.deleteArticle(b.dataset.c, b.dataset.s);
+              renderArticleLibrary();
+              updateStats();
+            }
+          });
+        });
+      }
+
+      listSearch.addEventListener("input", renderArticleLibrary);
+      listSector.addEventListener("change", renderArticleLibrary);
+      listCounty.addEventListener("change", renderArticleLibrary);
+
+      // 11. Backup
+      document.getElementById("btn-export-json").addEventListener("click", () => {
+        const json = AppStore.exportJson();
+        navigator.clipboard.writeText(json);
+        const msg = document.getElementById("backup-msg");
+        msg.textContent = "JSON-ul a fost copiat în clipboard!";
+        msg.classList.remove("hidden");
+        setTimeout(() => msg.classList.add("hidden"), 3000);
+      });
+
+      document.getElementById("btn-import-json").addEventListener("click", () => {
+        const ta = document.getElementById("import-json-textarea");
+        const res = AppStore.importJson(ta.value);
+        const msg = document.getElementById("backup-msg");
+        if (res.success) {
+          msg.textContent = `Succes! S-au importat ${res.count} articole.`;
+          ta.value = "";
+        } else {
+          msg.textContent = `Eroare: ${res.error}`;
+        }
+        msg.classList.remove("hidden");
+        updateStats();
+        setTimeout(() => msg.classList.add("hidden"), 4000);
+      });
+
+      document.getElementById("btn-reset-data").addEventListener("click", () => {
+        if (confirm("Ești sigur că vrei să resetezi articolele la valorile implicite?")) {
+          AppStore.resetToDefault();
+          updateStats();
+          alert("Datele au fost resetate!");
+        }
+      });
+
+      // Init
+      updateStats();
+      renderFormSectors();
+      renderCountySelect();
+      renderTopics();
+      renderSections();
+      renderTips();
+      updateLivePreview();
+    })();
+  </script>
+</body>
+</html>
