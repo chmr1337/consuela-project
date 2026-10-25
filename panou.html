@@ -811,9 +811,20 @@
           renderUgcModeration();
         };
 
-        // Listen for external UGC submission updates
+        // Listen for external UGC submission updates and cross-tab storage changes
         window.addEventListener("discover-romania-ugc-updated", () => {
           renderUgcModeration();
+          updateStats();
+        });
+
+        window.addEventListener("discover-romania-articles-updated", () => {
+          renderArticleLibrary();
+          updateStats();
+        });
+
+        window.addEventListener("storage", () => {
+          renderUgcModeration();
+          renderArticleLibrary();
           updateStats();
         });
 
@@ -1127,6 +1138,8 @@
         alertEl.classList.remove("hidden");
 
         updateStats();
+        renderArticleLibrary();
+        switchTab("list");
         window.scrollTo({ top: 0, behavior: "smooth" });
       });
 

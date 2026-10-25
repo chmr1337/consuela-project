@@ -5,16 +5,6 @@
   const EVENT_NAME = "discover-romania-articles-updated";
   const UGC_EVENT_NAME = "discover-romania-ugc-updated";
 
-  // Curățare inițială a datelor vechi salvate local pentru a porni de la 0 articole
-  try {
-    localStorage.removeItem("discover_romania_custom_articles_v1");
-    localStorage.removeItem("discover_romania_custom_articles_v2");
-    localStorage.removeItem("discover_romania_ugc_submissions_v1");
-    localStorage.removeItem("discover_romania_ugc_submissions_v2");
-    localStorage.removeItem(STORAGE_KEY);
-    localStorage.removeItem(UGC_STORAGE_KEY);
-  } catch (e) {}
-
   function getCustomArticles() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
