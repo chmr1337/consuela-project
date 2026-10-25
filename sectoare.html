@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="ro">
 <head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BLXPD4ND09"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-BLXPD4ND09');
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sectoarele și Regiunile României — Drumuri bune</title>
@@ -128,6 +137,10 @@
 
       window.addEventListener("discover-romania-articles-updated", render);
       render();
+
+      if (typeof gtag === "function") {
+        gtag("event", "view_sectors_page");
+      }
     })();
   </script>
 </body>

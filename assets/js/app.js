@@ -79,6 +79,14 @@
       }
 
       saveCustomArticles(all);
+
+      if (typeof gtag === "function") {
+        gtag("event", "publish_article", {
+          county: countySlug,
+          title: article.title,
+          topic: article.slug
+        });
+      }
     },
 
     deleteArticle(countySlug, articleSlug) {

@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="ro">
 <head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BLXPD4ND09"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-BLXPD4ND09');
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Drumuri bune — Harta turismului pe sectoare și județe</title>
@@ -237,6 +246,14 @@
         renderCountyList();
         updateMapHighlights();
         renderCard();
+
+        if (typeof gtag === "function") {
+          const sec = AppStore.getSectorByCounty(slug);
+          gtag("event", "select_county", {
+            county: slug,
+            sector: sec ? sec.name : "România"
+          });
+        }
 
         // Update URL cleanly without reloading
         const url = new URL(window.location);
