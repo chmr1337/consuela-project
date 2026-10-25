@@ -1,7 +1,7 @@
 import type { Config, Context } from "@netlify/edge-functions";
 
-// Parola pentru Panoul de Redactare
-const PASSWORD = "romania";
+// Parola pentru Panoul de Redactare / Centrul de Control
+const PASSWORD = "Apple";
 const COOKIE_NAME = "panou_auth";
 const MAX_AGE = 60 * 60 * 2; // 2 ore — după aceea parola este cerută din nou
 

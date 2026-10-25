@@ -21,63 +21,178 @@
   </script>
   <script defer src="/_vercel/insights/script.js"></script>
 </head>
-<body class="min-h-screen flex flex-col justify-between">
-  <div id="site-header"></div>
+<body class="min-h-screen bg-[var(--background)]">
+  <!-- AUTH GATE OVERLAY (Protected with password "Apple") -->
+  <div id="auth-gate-overlay" class="min-h-screen flex items-center justify-center p-4 sm:p-6 bg-[#f7f5ef]">
+    <div class="w-full max-w-md rounded-2xl border border-[var(--border)] bg-white p-6 sm:p-8 shadow-xl">
+      <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[var(--primary)]">
+        <span>🔒 Acces Protejat</span>
+      </div>
+      <h1 class="mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-[var(--foreground)]">Centrul de Control</h1>
+      <p class="mt-2 text-xs sm:text-sm text-[var(--muted-foreground)] leading-relaxed">
+        Introdu parola de administrator pentru a accesa moderarea articolelor trimise de utilizatori (UGC) și redactarea ghidurilor turistice.
+      </p>
 
-  <!-- Header Banner -->
-  <section class="border-b border-[var(--border)] bg-gradient-to-b from-[var(--secondary)] via-[var(--background)] to-[var(--background)] px-6 py-8">
-    <div class="mx-auto max-w-6xl">
-      <div class="flex flex-wrap items-center justify-between gap-4">
+      <form id="admin-login-form" class="mt-6 space-y-4">
         <div>
-          <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[var(--primary)]">
-            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-            <span>Panou de Administrare Turism</span>
-          </div>
-          <h1 class="mt-1 text-3xl font-bold tracking-tight text-[var(--foreground)] sm:text-4xl">
-            Redactează Articole pe Sectoare & Județe
-          </h1>
-          <p class="mt-2 text-sm text-[var(--muted-foreground)] sm:text-base">
-            Scrie, actualizează și publică ghiduri turistice, povești culinare și trasee în natură
-            pentru orice zonă din România.
-          </p>
-          <a href="/panou?logout" class="mt-2 inline-block text-xs font-semibold text-[var(--muted-foreground)] hover:text-[var(--primary)] hover:underline">Ieși din panou</a>
+          <label for="admin-pass-input" class="block text-xs font-bold uppercase tracking-wider text-[var(--foreground)]">Parolă de acces</label>
+          <input
+            id="admin-pass-input"
+            type="password"
+            required
+            autofocus
+            placeholder="Introdu parola..."
+            class="mt-1.5 w-full rounded-lg border border-[var(--input)] bg-[var(--background)] px-3.5 py-2.5 text-sm outline-none focus:border-[var(--ring)] transition-all"
+          />
+          <p id="admin-login-error" class="hidden mt-2 text-xs font-semibold text-red-600">Parolă incorectă. Te rugăm să încerci din nou.</p>
         </div>
 
-        <div id="stats-pills" class="flex flex-wrap gap-2 text-xs font-medium">
+        <button
+          type="submit"
+          class="w-full rounded-lg bg-[var(--primary)] py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-[var(--primary-hover)] transition-all cursor-pointer font-medium"
+        >
+          Intră în Centrul de Control →
+        </button>
+
+        <div class="pt-2 text-center">
+          <a href="index.html" class="text-xs text-[var(--muted-foreground)] hover:text-[var(--primary)] hover:underline">← Înapoi la site</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- CONTROL CENTRE MAIN APP (Revealed after password "Apple") -->
+  <div id="control-centre-main" class="hidden min-h-screen flex flex-col justify-between">
+    <div id="site-header"></div>
+
+    <!-- Header Banner -->
+    <section class="border-b border-[var(--border)] bg-gradient-to-b from-[var(--secondary)] via-[var(--background)] to-[var(--background)] px-6 py-8">
+      <div class="mx-auto max-w-6xl">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[var(--primary)]">
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+              <span>Centru de Control & Moderare Turism</span>
+            </div>
+            <h1 class="mt-1 text-3xl font-bold tracking-tight text-[var(--foreground)] sm:text-4xl">
+              Centrul de Control — Moderare UGC & Redactare
+            </h1>
+            <p class="mt-2 text-sm text-[var(--muted-foreground)] sm:text-base">
+              Aprobă sau respinge propunerile de articole trimise de comunitate și publică ghiduri turistice pentru județele României.
+            </p>
+            <div class="mt-2 flex items-center gap-3">
+              <button id="btn-admin-logout" type="button" class="text-xs font-semibold text-red-600 hover:underline cursor-pointer">
+                🔒 Ieși din panou (Logout)
+              </button>
+            </div>
+          </div>
+
+          <div id="stats-pills" class="flex flex-wrap gap-2 text-xs font-medium">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="mt-6 flex flex-wrap gap-2 border-b border-[var(--border)] pb-1">
+          <button id="tab-btn-ugc" class="tab-btn flex items-center gap-2 rounded-t-lg px-4 py-2 text-sm font-semibold border-b-2 border-[var(--primary)] bg-[var(--background)] text-[var(--primary)] cursor-pointer">
+            <span>🛡️ Moderare UGC</span>
+            <span id="ugc-pending-badge" class="rounded-full bg-amber-500 px-2 py-0.5 text-xs text-white font-bold">0</span>
+          </button>
+          <button id="tab-btn-write" class="tab-btn flex items-center gap-2 rounded-t-lg px-4 py-2 text-sm font-semibold text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/60 cursor-pointer">
+            Scrie articol direct
+          </button>
+          <button id="tab-btn-list" class="tab-btn flex items-center gap-2 rounded-t-lg px-4 py-2 text-sm font-semibold text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/60 cursor-pointer">
+            Articole publicate (<span id="total-articles-count">0</span>)
+          </button>
+          <button id="tab-btn-backup" class="tab-btn flex items-center gap-2 rounded-t-lg px-4 py-2 text-sm font-semibold text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/60 cursor-pointer">
+            Backup & Import JSON
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Content Container -->
+    <div class="flex-1 mx-auto w-full max-w-6xl px-4 sm:px-6 pt-6">
+      <!-- Success Alert -->
+      <div id="success-alert" class="hidden mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-emerald-800">
+        <div class="flex items-center gap-3">
+          <svg class="h-5 w-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+          <span id="success-text" class="text-sm font-medium"></span>
+        </div>
+        <a id="success-link" href="#" class="hidden items-center gap-1.5 rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-emerald-700">
+          <span>Vezi articolul pe site →</span>
+        </a>
+      </div>
+
+      <!-- TAB 1: MODERARE UGC (User Generated Content) -->
+      <div id="tab-ugc" class="space-y-6">
+        <!-- Status summary boxes -->
+        <div class="grid gap-3 sm:grid-cols-3">
+          <div class="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 shadow-xs">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-amber-800">În așteptare (Pending)</span>
+              <span class="text-xl">🟠</span>
+            </div>
+            <div id="ugc-count-pending-box" class="mt-2 text-3xl font-bold text-amber-900">0</div>
+            <p class="mt-1 text-xs text-amber-700">Articole trimise de vizitatori care necesită verificare</p>
+          </div>
+
+          <div class="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 shadow-xs">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-emerald-800">Aprobate & Publicate</span>
+              <span class="text-xl">🟢</span>
+            </div>
+            <div id="ugc-count-approved-box" class="mt-2 text-3xl font-bold text-emerald-900">0</div>
+            <p class="mt-1 text-xs text-emerald-700">Articole vizibile public pe site</p>
+          </div>
+
+          <div class="rounded-xl border border-red-500/30 bg-red-500/10 p-4 shadow-xs">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-red-800">Respinse</span>
+              <span class="text-xl">🔴</span>
+            </div>
+            <div id="ugc-count-denied-box" class="mt-2 text-3xl font-bold text-red-900">0</div>
+            <p class="mt-1 text-xs text-red-700">Propuneri respinse sau retrase de la publicare</p>
+          </div>
+        </div>
+
+        <!-- Filter & Search Toolbar -->
+        <div class="rounded-xl border border-[var(--border)] bg-white p-4 shadow-xs">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+              <button type="button" data-ugc-filter="pending" class="ugc-filter-btn rounded-md px-3 py-1.5 text-xs font-semibold bg-[var(--primary)] text-white shadow-xs cursor-pointer">
+                În așteptare (<span id="btn-count-pending">0</span>)
+              </button>
+              <button type="button" data-ugc-filter="all" class="ugc-filter-btn rounded-md px-3 py-1.5 text-xs font-semibold bg-[var(--secondary)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] cursor-pointer">
+                Toate (<span id="btn-count-all">0</span>)
+              </button>
+              <button type="button" data-ugc-filter="approved" class="ugc-filter-btn rounded-md px-3 py-1.5 text-xs font-semibold bg-[var(--secondary)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] cursor-pointer">
+                Aprobate (<span id="btn-count-approved">0</span>)
+              </button>
+              <button type="button" data-ugc-filter="denied" class="ugc-filter-btn rounded-md px-3 py-1.5 text-xs font-semibold bg-[var(--secondary)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] cursor-pointer">
+                Respinse (<span id="btn-count-denied">0</span>)
+              </button>
+            </div>
+
+            <div class="w-full sm:w-72">
+              <input
+                id="ugc-search-input"
+                type="text"
+                placeholder="Caută autor, județ sau titlu..."
+                class="w-full rounded-md border border-[var(--input)] bg-[var(--background)] px-3 py-1.5 text-xs outline-none focus:border-[var(--ring)]"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- List Container -->
+        <div id="ugc-submissions-list" class="space-y-4">
           <!-- Rendered dynamically -->
         </div>
       </div>
 
-      <!-- Navigation Tabs -->
-      <div class="mt-6 flex flex-wrap gap-2 border-b border-[var(--border)] pb-1">
-        <button id="tab-btn-write" class="tab-btn flex items-center gap-2 rounded-t-lg px-4 py-2 text-sm font-semibold border-b-2 border-[var(--primary)] bg-[var(--background)] text-[var(--primary)]">
-          Scrie articol nou
-        </button>
-        <button id="tab-btn-list" class="tab-btn flex items-center gap-2 rounded-t-lg px-4 py-2 text-sm font-semibold text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/60">
-          Articole existente (<span id="total-articles-count">0</span>)
-        </button>
-        <button id="tab-btn-backup" class="tab-btn flex items-center gap-2 rounded-t-lg px-4 py-2 text-sm font-semibold text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/60">
-          Backup & Import JSON
-        </button>
-      </div>
-    </div>
-  </section>
-
-  <!-- Main Content Container -->
-  <div class="flex-1 mx-auto w-full max-w-6xl px-6 pt-6">
-    <!-- Success Alert -->
-    <div id="success-alert" class="hidden mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-emerald-800">
-      <div class="flex items-center gap-3">
-        <svg class="h-5 w-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-        <span id="success-text" class="text-sm font-medium"></span>
-      </div>
-      <a id="success-link" href="#" class="hidden items-center gap-1.5 rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-emerald-700">
-        <span>Vezi articolul pe site →</span>
-      </a>
-    </div>
-
-    <!-- TAB 1: WRITE ARTICLE -->
-    <div id="tab-write" class="grid gap-8 lg:grid-cols-[1fr_360px]">
+      <!-- TAB 2: WRITE ARTICLE DIRECTLY -->
+      <div id="tab-write" class="hidden grid gap-8 lg:grid-cols-[1fr_360px]">
       <form id="article-form" class="space-y-6">
         <!-- Step 1: Location -->
         <div class="rounded-xl border border-[var(--border)] bg-white p-6 shadow-xs">
@@ -288,79 +403,419 @@
   </div>
 
   <div id="site-footer"></div>
+</div> <!-- end #control-centre-main -->
 
   <!-- Scripts -->
   <script src="assets/js/romania-data.js"></script>
   <script src="assets/js/app.js"></script>
   <script>
     (function () {
-      renderSiteHeader("panou");
-      renderSiteFooter();
+      const AUTH_KEY = "consuela_admin_auth";
+      const AUTH_PASS = "Apple";
 
-      const PRESETS = [
-        { label: "Cetate / Monument", url: "https://images.unsplash.com/photo-1549880338-65ddcdfd017b?q=80&w=1200&auto=format&fit=crop" },
-        { label: "Munte & Drumeție", url: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=1200&auto=format&fit=crop" },
-        { label: "Bucate tradiționale", url: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=1200&auto=format&fit=crop" },
-        { label: "Oraș vechi", url: "https://images.unsplash.com/photo-1584646098378-0874589d76b1?q=80&w=1200&auto=format&fit=crop" },
-        { label: "Apă & Natură", url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200&auto=format&fit=crop" }
-      ];
+      const authOverlay = document.getElementById("auth-gate-overlay");
+      const mainApp = document.getElementById("control-centre-main");
+      const loginForm = document.getElementById("admin-login-form");
+      const loginInput = document.getElementById("admin-pass-input");
+      const loginError = document.getElementById("admin-login-error");
+      const logoutBtn = document.getElementById("btn-admin-logout");
 
-      let formSector = getParam("sector") || "all";
-      let formCounty = getParam("judet") || "cluj";
-      // Subiectul vine doar din link (ex: ?topic=...); altfel slug-ul se generează din titlu
-      const formTopic = getParam("topic");
-
-      let sections = [
-        { heading: "Puncte de atracție principale", body: "" },
-        { heading: "Istorie și atmosferă", body: "" }
-      ];
-      let tips = ["Cea mai bună perioadă pentru vizitare este primăvara târziu sau la începutul toamnei."];
-
-      // Tab switcher
-      const tabWrite = document.getElementById("tab-write");
-      const tabList = document.getElementById("tab-list");
-      const tabBackup = document.getElementById("tab-backup");
-      const btnWrite = document.getElementById("tab-btn-write");
-      const btnList = document.getElementById("tab-btn-list");
-      const btnBackup = document.getElementById("tab-btn-backup");
-
-      function switchTab(t) {
-        tabWrite.classList.toggle("hidden", t !== "write");
-        tabList.classList.toggle("hidden", t !== "list");
-        tabBackup.classList.toggle("hidden", t !== "backup");
-
-        btnWrite.className = `tab-btn flex items-center gap-2 rounded-t-lg px-4 py-2 text-sm font-semibold ${
-          t === "write" ? "border-b-2 border-[var(--primary)] bg-[var(--background)] text-[var(--primary)]" : "text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/60"
-        }`;
-        btnList.className = `tab-btn flex items-center gap-2 rounded-t-lg px-4 py-2 text-sm font-semibold ${
-          t === "list" ? "border-b-2 border-[var(--primary)] bg-[var(--background)] text-[var(--primary)]" : "text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/60"
-        }`;
-        btnBackup.className = `tab-btn flex items-center gap-2 rounded-t-lg px-4 py-2 text-sm font-semibold ${
-          t === "backup" ? "border-b-2 border-[var(--primary)] bg-[var(--background)] text-[var(--primary)]" : "text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/60"
-        }`;
-
-        if (t === "list") renderArticleLibrary();
+      function isAuthed() {
+        return sessionStorage.getItem(AUTH_KEY) === AUTH_PASS ||
+               (document.cookie && document.cookie.includes("panou_auth=Apple"));
       }
 
-      btnWrite.addEventListener("click", () => switchTab("write"));
-      btnList.addEventListener("click", () => switchTab("list"));
-      btnBackup.addEventListener("click", () => switchTab("backup"));
-
-      // 1. Render Stats
-      function updateStats() {
-        const total = AppStore.getAllArticles().length;
-        const countWith = AppStore.countiesWithArticles().length;
-        document.getElementById("total-articles-count").textContent = total;
-
-        document.getElementById("stats-pills").innerHTML = `
-          <div class="rounded-lg border border-[var(--border)] bg-white px-3 py-2 shadow-xs">
-            📖 <b>${total}</b> articole totale
-          </div>
-          <div class="rounded-lg border border-[var(--border)] bg-white px-3 py-2 shadow-xs">
-            🗺️ <b>${countWith}</b> / 42 județe active
-          </div>
-        `;
+      function showLogin() {
+        authOverlay.classList.remove("hidden");
+        mainApp.classList.add("hidden");
+        loginInput.value = "";
+        setTimeout(() => loginInput.focus(), 60);
       }
+
+      function unlockControlCentre() {
+        authOverlay.classList.add("hidden");
+        mainApp.classList.remove("hidden");
+        renderSiteHeader("panou");
+        renderSiteFooter();
+        initControlCentre();
+      }
+
+      loginForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        if (loginInput.value.trim() === AUTH_PASS) {
+          sessionStorage.setItem(AUTH_KEY, AUTH_PASS);
+          document.cookie = `panou_auth=${AUTH_PASS}; path=/; max-age=7200; SameSite=Lax`;
+          loginError.classList.add("hidden");
+          unlockControlCentre();
+        } else {
+          loginError.classList.remove("hidden");
+          loginInput.select();
+        }
+      });
+
+      logoutBtn.addEventListener("click", () => {
+        sessionStorage.removeItem(AUTH_KEY);
+        document.cookie = "panou_auth=; path=/; max-age=0;";
+        window.location.reload();
+      });
+
+      if (isAuthed()) {
+        unlockControlCentre();
+      } else {
+        showLogin();
+      }
+
+      function initControlCentre() {
+        const PRESETS = [
+          { label: "Cetate / Monument", url: "https://images.unsplash.com/photo-1549880338-65ddcdfd017b?q=80&w=1200&auto=format&fit=crop" },
+          { label: "Munte & Drumeție", url: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=1200&auto=format&fit=crop" },
+          { label: "Bucate tradiționale", url: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=1200&auto=format&fit=crop" },
+          { label: "Oraș vechi", url: "https://images.unsplash.com/photo-1584646098378-0874589d76b1?q=80&w=1200&auto=format&fit=crop" },
+          { label: "Apă & Natură", url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200&auto=format&fit=crop" }
+        ];
+
+        let formSector = getParam("sector") || "all";
+        let formCounty = getParam("judet") || "cluj";
+        const formTopic = getParam("topic");
+
+        let sections = [
+          { heading: "Puncte de atracție principale", body: "" },
+          { heading: "Istorie și atmosferă", body: "" }
+        ];
+        let tips = ["Cea mai bună perioadă pentru vizitare este primăvara târziu sau la începutul toamnei."];
+
+        // UGC Moderation State
+        let ugcActiveFilter = "pending";
+        let ugcSearchQuery = "";
+
+        // Tab switcher
+        const tabUgc = document.getElementById("tab-ugc");
+        const tabWrite = document.getElementById("tab-write");
+        const tabList = document.getElementById("tab-list");
+        const tabBackup = document.getElementById("tab-backup");
+
+        const btnUgc = document.getElementById("tab-btn-ugc");
+        const btnWrite = document.getElementById("tab-btn-write");
+        const btnList = document.getElementById("tab-btn-list");
+        const btnBackup = document.getElementById("tab-btn-backup");
+
+        function switchTab(t) {
+          tabUgc.classList.toggle("hidden", t !== "ugc");
+          tabWrite.classList.toggle("hidden", t !== "write");
+          tabList.classList.toggle("hidden", t !== "list");
+          tabBackup.classList.toggle("hidden", t !== "backup");
+
+          btnUgc.className = `tab-btn flex items-center gap-2 rounded-t-lg px-4 py-2 text-sm font-semibold cursor-pointer ${
+            t === "ugc" ? "border-b-2 border-[var(--primary)] bg-[var(--background)] text-[var(--primary)]" : "text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/60"
+          }`;
+          btnWrite.className = `tab-btn flex items-center gap-2 rounded-t-lg px-4 py-2 text-sm font-semibold cursor-pointer ${
+            t === "write" ? "border-b-2 border-[var(--primary)] bg-[var(--background)] text-[var(--primary)]" : "text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/60"
+          }`;
+          btnList.className = `tab-btn flex items-center gap-2 rounded-t-lg px-4 py-2 text-sm font-semibold cursor-pointer ${
+            t === "list" ? "border-b-2 border-[var(--primary)] bg-[var(--background)] text-[var(--primary)]" : "text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/60"
+          }`;
+          btnBackup.className = `tab-btn flex items-center gap-2 rounded-t-lg px-4 py-2 text-sm font-semibold cursor-pointer ${
+            t === "backup" ? "border-b-2 border-[var(--primary)] bg-[var(--background)] text-[var(--primary)]" : "text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/60"
+          }`;
+
+          if (t === "ugc") renderUgcModeration();
+          if (t === "list") renderArticleLibrary();
+        }
+
+        btnUgc.addEventListener("click", () => switchTab("ugc"));
+        btnWrite.addEventListener("click", () => switchTab("write"));
+        btnList.addEventListener("click", () => switchTab("list"));
+        btnBackup.addEventListener("click", () => switchTab("backup"));
+
+        // 1. Render Stats
+        function updateStats() {
+          const total = AppStore.getAllArticles().length;
+          const countWith = AppStore.countiesWithArticles().length;
+          const pendingUgc = AppStore.getPendingUgcCount();
+
+          document.getElementById("total-articles-count").textContent = total;
+          const badge = document.getElementById("ugc-pending-badge");
+          badge.textContent = pendingUgc;
+          badge.className = `rounded-full px-2 py-0.5 text-xs font-bold text-white ${
+            pendingUgc > 0 ? "bg-amber-500 animate-pulse" : "bg-gray-400"
+          }`;
+
+          document.getElementById("stats-pills").innerHTML = `
+            <div class="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 shadow-xs text-amber-900 font-semibold flex items-center gap-1.5">
+              <span>🛡️</span> <b>${pendingUgc}</b> UGC în așteptare
+            </div>
+            <div class="rounded-lg border border-[var(--border)] bg-white px-3 py-1.5 shadow-xs">
+              📖 <b>${total}</b> articole totale
+            </div>
+            <div class="rounded-lg border border-[var(--border)] bg-white px-3 py-1.5 shadow-xs">
+              🗺️ <b>${countWith}</b> / 42 județe active
+            </div>
+          `;
+        }
+
+        // ==========================================
+        // 2. MODERARE UGC (User Generated Content)
+        // ==========================================
+        const ugcListContainer = document.getElementById("ugc-submissions-list");
+        const ugcSearchInput = document.getElementById("ugc-search-input");
+        const ugcFilterButtons = document.querySelectorAll(".ugc-filter-btn");
+
+        function renderUgcModeration() {
+          const allUgc = AppStore.getUgcSubmissions();
+          const pendingCount = allUgc.filter(s => s.status === "pending").length;
+          const approvedCount = allUgc.filter(s => s.status === "approved").length;
+          const deniedCount = allUgc.filter(s => s.status === "denied").length;
+
+          // Update counter numbers in boxes and filter pills
+          document.getElementById("ugc-count-pending-box").textContent = pendingCount;
+          document.getElementById("ugc-count-approved-box").textContent = approvedCount;
+          document.getElementById("ugc-count-denied-box").textContent = deniedCount;
+
+          document.getElementById("btn-count-pending").textContent = pendingCount;
+          document.getElementById("btn-count-all").textContent = allUgc.length;
+          document.getElementById("btn-count-approved").textContent = approvedCount;
+          document.getElementById("btn-count-denied").textContent = deniedCount;
+
+          // Update filter buttons styling
+          ugcFilterButtons.forEach(btn => {
+            const f = btn.getAttribute("data-ugc-filter");
+            if (f === ugcActiveFilter) {
+              btn.className = "ugc-filter-btn rounded-md px-3 py-1.5 text-xs font-semibold bg-[var(--primary)] text-white shadow-xs cursor-pointer";
+            } else {
+              btn.className = "ugc-filter-btn rounded-md px-3 py-1.5 text-xs font-semibold bg-[var(--secondary)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] cursor-pointer";
+            }
+          });
+
+          // Filter by active status and search
+          const q = ugcSearchQuery.toLowerCase().trim();
+          const filtered = allUgc.filter(sub => {
+            if (ugcActiveFilter !== "all" && sub.status !== ugcActiveFilter) return false;
+            if (q) {
+              const cObj = AppStore.getCountyObj(sub.countySlug);
+              const cName = cObj ? cObj.name.toLowerCase() : sub.countySlug.toLowerCase();
+              const matchTitle = sub.title.toLowerCase().includes(q);
+              const matchAuthor = (sub.authorName || "").toLowerCase().includes(q);
+              const matchCounty = cName.includes(q);
+              const matchExcerpt = (sub.excerpt || "").toLowerCase().includes(q);
+              if (!matchTitle && !matchAuthor && !matchCounty && !matchExcerpt) return false;
+            }
+            return true;
+          });
+
+          if (filtered.length === 0) {
+            ugcListContainer.innerHTML = `
+              <div class="rounded-xl border border-dashed border-[var(--border)] bg-white p-10 text-center">
+                <span class="text-3xl">📭</span>
+                <h3 class="mt-2 text-base font-bold text-[var(--foreground)]">Nicio propunere în această listă</h3>
+                <p class="mt-1 text-xs text-[var(--muted-foreground)]">Nu există articole ${ugcActiveFilter !== "all" ? `cu statusul «${ugcActiveFilter}»` : ""} care să corespundă căutării.</p>
+                <div class="mt-4">
+                  <button type="button" onclick="window.openUgcModal()" class="rounded-lg bg-[var(--primary)] px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-[var(--primary-hover)] cursor-pointer">
+                    ✍️ Testează formularul UGC (Trimite propunere)
+                  </button>
+                </div>
+              </div>
+            `;
+            return;
+          }
+
+          ugcListContainer.innerHTML = filtered.map(sub => {
+            const cObj = AppStore.getCountyObj(sub.countySlug);
+            const countyName = cObj ? cObj.name : sub.countySlug;
+            const sec = AppStore.getSectorByCounty(sub.countySlug);
+            const dateStr = sub.submittedAt ? new Date(sub.submittedAt).toLocaleDateString("ro-RO", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "Recent";
+
+            let statusPill = "";
+            if (sub.status === "pending") {
+              statusPill = `<span class="inline-flex items-center gap-1 rounded-full bg-amber-100 text-amber-800 px-2.5 py-0.5 text-xs font-bold">🟠 În așteptare de aprobare</span>`;
+            } else if (sub.status === "approved") {
+              statusPill = `<span class="inline-flex items-center gap-1 rounded-full bg-emerald-100 text-emerald-800 px-2.5 py-0.5 text-xs font-bold">🟢 Aprobat & Publicat</span>`;
+            } else {
+              statusPill = `<span class="inline-flex items-center gap-1 rounded-full bg-red-100 text-red-800 px-2.5 py-0.5 text-xs font-bold">🔴 Respins</span>`;
+            }
+
+            return `
+              <div class="rounded-xl border border-[var(--border)] bg-white p-5 shadow-xs transition-all hover:shadow-sm">
+                <!-- Header row: Author, County, Status -->
+                <div class="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--border)]/60 pb-3">
+                  <div class="flex flex-wrap items-center gap-2 text-xs">
+                    <span class="font-bold text-[var(--foreground)]">👤 ${sub.authorName || "Călător"}</span>
+                    ${sub.authorEmail ? `<span class="text-[var(--muted-foreground)]">(${sub.authorEmail})</span>` : ""}
+                    <span class="text-[var(--border)]">•</span>
+                    <span class="font-semibold text-[var(--primary)]">📍 ${countyName} ${sec ? `(Sector ${sec.name})` : ""}</span>
+                    <span class="text-[var(--border)]">•</span>
+                    <span class="rounded-md bg-[var(--secondary)] px-2 py-0.5 text-[11px] font-bold text-[var(--accent)] uppercase tracking-wider">${sub.topicLabel || "Articol"}</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-[11px] text-[var(--muted-foreground)]">${dateStr}</span>
+                    ${statusPill}
+                  </div>
+                </div>
+
+                <!-- Main info: Title, Excerpt, Image -->
+                <div class="mt-3 flex flex-col md:flex-row gap-4 items-start justify-between">
+                  <div class="flex-1">
+                    <h3 class="text-lg font-bold text-[var(--foreground)]">${sub.title}</h3>
+                    <p class="mt-1.5 text-xs sm:text-sm text-[var(--muted-foreground)] leading-relaxed">${sub.excerpt}</p>
+
+                    <!-- Accordion to see sections and tips -->
+                    <div class="mt-3">
+                      <button type="button" class="btn-toggle-preview text-xs font-semibold text-[var(--primary)] hover:underline flex items-center gap-1 cursor-pointer">
+                        <span>👁️ Previzualizează tot conținutul (${(sub.sections || []).length} secțiuni, ${(sub.tips || []).length} sfaturi)</span>
+                      </button>
+
+                      <div class="ugc-full-content hidden mt-3 rounded-lg border border-[var(--border)] bg-[var(--background)] p-4 text-xs space-y-3">
+                        ${(sub.sections || []).map((sec, idx) => `
+                          <div>
+                            <h5 class="font-bold text-[var(--foreground)]">${idx + 1}. ${sec.heading}</h5>
+                            <p class="mt-1 text-[var(--muted-foreground)] whitespace-pre-line leading-relaxed">${sec.body}</p>
+                          </div>
+                        `).join("")}
+
+                        ${(sub.tips || []).length > 0 ? `
+                          <div class="border-t border-[var(--border)] pt-2">
+                            <span class="font-bold text-[var(--accent)]">💡 Sfaturi utile:</span>
+                            <ul class="mt-1 list-disc list-inside text-[var(--muted-foreground)] space-y-0.5">
+                              ${sub.tips.map(t => `<li>${t}</li>`).join("")}
+                            </ul>
+                          </div>
+                        ` : ""}
+                      </div>
+                    </div>
+                  </div>
+
+                  ${sub.imageUrl ? `
+                    <div class="w-full md:w-36 h-24 rounded-lg overflow-hidden border border-[var(--border)] shrink-0">
+                      <img src="${sub.imageUrl}" alt="${sub.title}" class="w-full h-full object-cover" onerror="this.parentElement.style.display='none'" />
+                    </div>
+                  ` : ""}
+                </div>
+
+                <!-- Action Bar -->
+                <div class="mt-4 pt-3 border-t border-[var(--border)] flex flex-wrap items-center justify-between gap-2">
+                  <div class="text-xs text-[var(--muted-foreground)]">
+                    ${sub.status === "approved" ? `<span class="text-emerald-700 font-medium">✓ Acest articol este public pe site</span>` : ""}
+                    ${sub.status === "denied" ? `<span class="text-red-700 font-medium">✕ Respins: ${sub.denyReason || "Nu respectă standardele"}</span>` : ""}
+                    ${sub.status === "pending" ? `<span class="text-amber-800 font-medium">⏳ Necesită aprobare din Centrul de Control</span>` : ""}
+                  </div>
+
+                  <div class="flex flex-wrap items-center gap-2">
+                    ${sub.status === "pending" ? `
+                      <button type="button" data-action="approve" data-id="${sub.id}" class="btn-ugc-action rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-emerald-700 cursor-pointer transition-all">
+                        ✅ Aprobă și Publică
+                      </button>
+                      <button type="button" data-action="deny" data-id="${sub.id}" class="btn-ugc-action rounded-md border border-red-300 bg-white px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-50 cursor-pointer transition-all">
+                        ❌ Respinge
+                      </button>
+                      <button type="button" data-action="edit" data-id="${sub.id}" class="btn-ugc-action rounded-md border border-[var(--input)] bg-[var(--secondary)] px-2.5 py-1.5 text-xs font-semibold hover:bg-[var(--secondary)]/80 cursor-pointer">
+                        ✏️ Încarcă în Editor
+                      </button>
+                    ` : ""}
+
+                    ${sub.status === "approved" ? `
+                      <a href="articol.html?judet=${sub.countySlug}&slug=${sub.slug}" class="rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200 px-3 py-1.5 text-xs font-semibold hover:bg-emerald-100">
+                        👁️ Vezi articolul pe site →
+                      </a>
+                      <button type="button" data-action="deny" data-id="${sub.id}" class="btn-ugc-action rounded-md border border-red-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50 cursor-pointer">
+                        Retrage aprobarea
+                      </button>
+                    ` : ""}
+
+                    ${sub.status === "denied" ? `
+                      <button type="button" data-action="approve" data-id="${sub.id}" class="btn-ugc-action rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-emerald-700 cursor-pointer">
+                        Re-aprobă
+                      </button>
+                      <button type="button" data-action="delete" data-id="${sub.id}" class="btn-ugc-action text-xs text-red-600 hover:underline cursor-pointer">
+                        Șterge definitiv
+                      </button>
+                    ` : ""}
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join("");
+
+          // Accordion toggles
+          ugcListContainer.querySelectorAll(".btn-toggle-preview").forEach(btn => {
+            btn.onclick = () => {
+              const fullContent = btn.nextElementSibling;
+              const isHidden = fullContent.classList.contains("hidden");
+              fullContent.classList.toggle("hidden", !isHidden);
+              btn.querySelector("span").textContent = isHidden ? "▲ Ascunde conținutul" : "👁️ Previzualizează tot conținutul";
+            };
+          });
+
+          // Action buttons listeners
+          ugcListContainer.querySelectorAll(".btn-ugc-action").forEach(btn => {
+            btn.onclick = () => {
+              const action = btn.getAttribute("data-action");
+              const id = btn.getAttribute("data-id");
+              const sub = AppStore.getUgcSubmissionById(id);
+              if (!sub) return;
+
+              if (action === "approve") {
+                const res = AppStore.approveUgcArticle(id);
+                if (res.success) {
+                  const alertEl = document.getElementById("success-alert");
+                  const alertText = document.getElementById("success-text");
+                  const alertLink = document.getElementById("success-link");
+                  alertText.textContent = `Articolul «${sub.title}» propus de ${sub.authorName} a fost APROBAT și PUBLICAT cu succes!`;
+                  alertLink.href = `articol.html?judet=${sub.countySlug}&slug=${sub.slug}`;
+                  alertLink.classList.remove("hidden");
+                  alertLink.classList.add("inline-flex");
+                  alertEl.classList.remove("hidden");
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }
+              } else if (action === "deny") {
+                if (confirm(`Ești sigur că dorești să respingi propunerea «${sub.title}»?`)) {
+                  AppStore.denyUgcArticle(id);
+                }
+              } else if (action === "edit") {
+                // Populate the editor with this UGC submission
+                formCounty = sub.countySlug;
+                renderFormSectors();
+                renderCountySelect();
+                articleTitle.value = sub.title;
+                articleExcerpt.value = sub.excerpt;
+                articleMinutes.value = sub.readMinutes || 5;
+                if (sub.imageUrl) articleImage.value = sub.imageUrl;
+                sections = (sub.sections && sub.sections.length > 0) ? [...sub.sections] : [{ heading: "Despre acest loc", body: "" }];
+                tips = (sub.tips && sub.tips.length > 0) ? [...sub.tips] : [];
+                renderSections();
+                renderTips();
+                updateLivePreview();
+                switchTab("write");
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              } else if (action === "delete") {
+                if (confirm(`Ștergi definitiv această propunere din sistem?`)) {
+                  AppStore.deleteUgcSubmission(id);
+                }
+              }
+
+              renderUgcModeration();
+              updateStats();
+            };
+          });
+        }
+
+        // UGC Filter buttons
+        ugcFilterButtons.forEach(btn => {
+          btn.onclick = () => {
+            ugcActiveFilter = btn.getAttribute("data-ugc-filter");
+            renderUgcModeration();
+          };
+        });
+
+        // UGC Search input
+        ugcSearchInput.oninput = (e) => {
+          ugcSearchQuery = e.target.value;
+          renderUgcModeration();
+        };
+
+        // Listen for external UGC submission updates
+        window.addEventListener("discover-romania-ugc-updated", () => {
+          renderUgcModeration();
+          updateStats();
+        });
 
       // 2. Form Sector Pills
       const sectorPillsWrap = document.getElementById("form-sector-pills");
@@ -713,7 +1168,7 @@
               <div>
                 <div class="flex items-center justify-between text-[11px] mb-2">
                   <span class="font-bold text-[var(--primary)]">${cObj ? cObj.name : countySlug} · ${s ? s.name : "România"}</span>
-                  ${article.isCustom ? `<span class="rounded-full bg-emerald-100 text-emerald-800 px-2 py-0.5 font-bold">Creat de tine</span>` : `<span class="rounded-full bg-gray-100 text-gray-600 px-2 py-0.5">Implicit</span>`}
+                  ${article.isUgc ? `<span class="rounded-full bg-amber-100 text-amber-800 px-2 py-0.5 font-bold">✍️ UGC (Autor: ${article.authorName || "Comunitate"})</span>` : (article.isCustom ? `<span class="rounded-full bg-emerald-100 text-emerald-800 px-2 py-0.5 font-bold">Creat din Panou</span>` : `<span class="rounded-full bg-gray-100 text-gray-600 px-2 py-0.5">Implicit</span>`)}
                 </div>
                 <h4 class="font-bold text-base text-[var(--foreground)] line-clamp-2">${article.title}</h4>
                 <p class="mt-1 text-xs text-[var(--muted-foreground)] line-clamp-3">${article.excerpt}</p>
@@ -778,13 +1233,15 @@
         }
       });
 
-      // Init
-      updateStats();
-      renderFormSectors();
-      renderCountySelect();
-      renderSections();
-      renderTips();
-      updateLivePreview();
+        // Init
+        updateStats();
+        renderFormSectors();
+        renderCountySelect();
+        renderSections();
+        renderTips();
+        updateLivePreview();
+        switchTab("ugc");
+      } // end initControlCentre
     })();
   </script>
 </body>
