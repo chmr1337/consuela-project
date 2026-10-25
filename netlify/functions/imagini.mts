@@ -3,7 +3,7 @@ import { getStore } from "@netlify/blobs";
 import { createHash, randomUUID } from "node:crypto";
 
 // Trebuie să fie identice cu cele din edge-functions/panou-auth.ts
-const PASSWORD = "romania";
+const PASSWORD = "Apple";
 const COOKIE_NAME = "panou_auth";
 const MAX_AGE = 60 * 60 * 2;
 const MAX_SIZE = 5 * 1024 * 1024; // 5 MB

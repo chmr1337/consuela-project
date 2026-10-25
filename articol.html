@@ -75,7 +75,7 @@
 
         document.title = `${article.title} — ${countyName} | Drumuri bune`;
 
-        const tObj = window.ARTICLE_TOPICS.find(t => t.slug === article.slug);
+        const tObj = window.ARTICLE_TOPICS.find(t => t.slug === (article.topicSlug || article.slug));
         const topicLabel = article.topicLabel || (tObj ? tObj.label : "Articol Turistic");
 
         // Others
@@ -94,11 +94,15 @@
           </nav>
 
           <!-- Cover Image -->
-          ${article.imageUrl ? `
-            <div class="mt-6 overflow-hidden rounded-2xl border border-[var(--border)] shadow-md">
-              <img src="${article.imageUrl}" alt="${article.title}" class="h-64 w-full object-cover sm:h-80">
-            </div>
-          ` : ""}
+          <div class="mt-6 overflow-hidden rounded-2xl border border-[var(--border)] shadow-md bg-[var(--secondary)]">
+            <img 
+              src="${article.imageUrl || (typeof window.getDefaultArticleImage === 'function' ? window.getDefaultArticleImage(article.topicSlug || article.slug) : 'https://images.unsplash.com/photo-1549880338-65ddcdfd017b?q=80&w=1200&auto=format&fit=crop')}" 
+              alt="${article.title}" 
+              class="h-64 w-full object-cover sm:h-80 md:h-96"
+              referrerpolicy="no-referrer"
+              onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1549880338-65ddcdfd017b?q=80&w=1200&auto=format&fit=crop';"
+            >
+          </div>
 
           <!-- Article Header -->
           <div class="mt-6">

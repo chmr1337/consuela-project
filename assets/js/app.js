@@ -51,6 +51,69 @@
     }
   }
 
+  // Client-Side Image Compressor & Reader
+  // Compresses files client-side to lightweight WebP/JPEG Data URLs (~60-120 KB)
+  window.compressAndReadImage = function (file, maxWidth = 1200, maxHeight = 900, quality = 0.82) {
+    return new Promise((resolve, reject) => {
+      if (!file) return reject(new Error("Niciun fișier selectat"));
+      if (!file.type || !file.type.startsWith("image/")) {
+        return reject(new Error("Fișierul selectat nu este o imagine"));
+      }
+
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error("Eroare la citirea fișierului"));
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onerror = () => reject(new Error("Imaginea nu a putut fi decodată"));
+        img.onload = () => {
+          try {
+            let width = img.naturalWidth || img.width;
+            let height = img.naturalHeight || img.height;
+
+            if (width > maxWidth || height > maxHeight) {
+              const ratio = Math.min(maxWidth / width, maxHeight / height);
+              width = Math.max(1, Math.round(width * ratio));
+              height = Math.max(1, Math.round(height * ratio));
+            }
+
+            const canvas = document.createElement("canvas");
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext("2d");
+
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, width, height);
+            ctx.drawImage(img, 0, 0, width, height);
+
+            let dataUrl = canvas.toDataURL("image/webp", quality);
+            if (!dataUrl.startsWith("data:image/webp")) {
+              dataUrl = canvas.toDataURL("image/jpeg", quality);
+            }
+            resolve(dataUrl);
+          } catch (err) {
+            resolve(e.target.result);
+          }
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  // Thematic fallback travel cover image
+  window.getDefaultArticleImage = function (topicSlug) {
+    if (topicSlug === "natura-si-drumetii") {
+      return "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=1200&auto=format&fit=crop";
+    }
+    if (topicSlug === "bucate-si-traditii") {
+      return "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=1200&auto=format&fit=crop";
+    }
+    if (topicSlug === "locuri-de-vizitat") {
+      return "https://images.unsplash.com/photo-1549880338-65ddcdfd017b?q=80&w=1200&auto=format&fit=crop";
+    }
+    return "https://images.unsplash.com/photo-1584646098378-0874589d76b1?q=80&w=1200&auto=format&fit=crop";
+  };
+
   window.AppStore = {
     // Return combined articles for a county
     getCountyArticles(countySlug) {
@@ -202,7 +265,8 @@
     submitUgcArticle(payload) {
       const all = getUgcSubmissions();
       const id = "ugc_" + Date.now();
-      const slug = payload.topicSlug || (payload.title.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "articol");
+      const titleSlug = (payload.title || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+      const slug = payload.slug || titleSlug || payload.topicSlug || ("articol-" + Date.now());
 
       const newSubmission = {
         id,
@@ -258,6 +322,7 @@
         imageUrl: sub.imageUrl,
         sections: sub.sections,
         tips: sub.tips,
+        topicSlug: sub.topicSlug,
         topicLabel: sub.topicLabel,
         isCustom: true,
         isUgc: true,
@@ -395,7 +460,7 @@
           <div>
             <div class="flex items-center justify-between">
               <label class="block text-xs font-bold uppercase tracking-wider text-[var(--foreground)]">Imagine reprezentativă</label>
-              <span class="text-[10px] text-[var(--muted-foreground)]">Alege un preset sau lipește un URL</span>
+              <span class="text-[10px] text-[var(--muted-foreground)]">Încarcă foto, alege un preset sau lipește URL</span>
             </div>
             <div class="mt-1.5 flex flex-wrap gap-1.5 mb-2">
               <button type="button" data-img="https://images.unsplash.com/photo-1549880338-65ddcdfd017b?q=80&w=1200&auto=format&fit=crop" class="ugc-preset-btn rounded-md border border-[var(--border)] bg-[var(--secondary)]/60 px-2.5 py-1 text-[11px] font-semibold hover:bg-[var(--secondary)]">🏛️ Monument / Castel</button>
@@ -403,7 +468,18 @@
               <button type="button" data-img="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=1200&auto=format&fit=crop" class="ugc-preset-btn rounded-md border border-[var(--border)] bg-[var(--secondary)]/60 px-2.5 py-1 text-[11px] font-semibold hover:bg-[var(--secondary)]">🍲 Gastronomie</button>
               <button type="button" data-img="https://images.unsplash.com/photo-1584646098378-0874589d76b1?q=80&w=1200&auto=format&fit=crop" class="ugc-preset-btn rounded-md border border-[var(--border)] bg-[var(--secondary)]/60 px-2.5 py-1 text-[11px] font-semibold hover:bg-[var(--secondary)]">🏘️ Oraș vechi</button>
             </div>
-            <input id="ugc-image-url" type="url" placeholder="https://exemplu.ro/imagine.jpg (sau selectează mai sus)" class="w-full rounded-lg border border-[var(--input)] bg-[var(--background)] px-3 py-2 text-xs sm:text-sm outline-none focus:border-[var(--ring)] transition-all" />
+            <div class="flex flex-col sm:flex-row gap-2">
+              <input id="ugc-image-url" type="text" placeholder="Lipește URL sau selectează fișier din telefon/calculator" class="w-full rounded-lg border border-[var(--input)] bg-[var(--background)] px-3 py-2 text-xs sm:text-sm outline-none focus:border-[var(--ring)] transition-all" />
+              <label for="ugc-image-file" class="inline-flex shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--secondary)] px-3 py-2 text-xs font-semibold hover:bg-[var(--secondary)]/80 text-[var(--foreground)]">
+                📁 Încarcă foto
+              </label>
+              <input type="file" id="ugc-image-file" accept="image/jpeg,image/png,image/webp,image/gif" class="sr-only" />
+            </div>
+            <p id="ugc-image-status" class="mt-1 text-[11px] text-[var(--muted-foreground)]">Poți încărca orice poză (JPG, PNG, WEBP) sau alege din preseturi.</p>
+            <div id="ugc-image-preview-wrap" class="hidden mt-2 relative w-full h-32 rounded-lg overflow-hidden border border-[var(--border)] bg-[var(--secondary)]/30">
+              <img id="ugc-image-preview-img" src="" alt="Previzualizare copertă" class="w-full h-full object-cover" referrerpolicy="no-referrer" />
+              <button type="button" id="ugc-image-clear-btn" class="absolute top-2 right-2 bg-black/70 hover:bg-black text-white text-[11px] font-bold px-2 py-1 rounded shadow cursor-pointer">Șterge foto</button>
+            </div>
           </div>
 
           <!-- Secțiuni Conținut -->
@@ -493,12 +569,67 @@
       if (e.target === modal) closeModal();
     };
 
+    const fileInput = document.getElementById("ugc-image-file");
+    const imgStatus = document.getElementById("ugc-image-status");
+    const previewWrap = document.getElementById("ugc-image-preview-wrap");
+    const previewImg = document.getElementById("ugc-image-preview-img");
+    const clearImgBtn = document.getElementById("ugc-image-clear-btn");
+
+    function updateUgcPreview(src) {
+      if (src && src.trim()) {
+        previewImg.src = src.trim();
+        previewWrap.classList.remove("hidden");
+      } else {
+        previewImg.src = "";
+        previewWrap.classList.add("hidden");
+      }
+    }
+
     // Preset images clicks
     modal.querySelectorAll(".ugc-preset-btn").forEach((b) => {
       b.onclick = () => {
-        imgUrlInput.value = b.getAttribute("data-img");
+        const u = b.getAttribute("data-img");
+        imgUrlInput.value = u;
+        updateUgcPreview(u);
+        imgStatus.textContent = "Preset selectat.";
+        imgStatus.classList.remove("text-red-600");
       };
     });
+
+    // File upload change
+    fileInput.onchange = async () => {
+      const file = fileInput.files[0];
+      fileInput.value = "";
+      if (!file) return;
+      if (!file.type || !file.type.startsWith("image/")) {
+        imgStatus.textContent = "Fișierul selectat nu este o imagine validă.";
+        imgStatus.classList.add("text-red-600");
+        return;
+      }
+
+      imgStatus.textContent = `Se optimizează „${file.name}”...`;
+      imgStatus.classList.remove("text-red-600");
+
+      try {
+        const dataUrl = await window.compressAndReadImage(file);
+        imgUrlInput.value = dataUrl;
+        updateUgcPreview(dataUrl);
+        imgStatus.textContent = `✓ Fotografia «${file.name}» a fost pregătită cu succes!`;
+      } catch (err) {
+        imgStatus.textContent = "Eroare la optimizarea imaginii: " + (err.message || "");
+        imgStatus.classList.add("text-red-600");
+      }
+    };
+
+    imgUrlInput.oninput = () => {
+      updateUgcPreview(imgUrlInput.value);
+    };
+
+    clearImgBtn.onclick = () => {
+      imgUrlInput.value = "";
+      updateUgcPreview("");
+      imgStatus.textContent = "Imagine înlăturată.";
+    };
 
     // Add section
     addSecBtn.onclick = () => {
