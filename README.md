@@ -1,6 +1,6 @@
-# Discover Romania — Pachet HTML pentru Găzduire Web
+# Drumuri bune — Pachet HTML pentru Găzduire Web
 
-Acest folder (`hosting-ready/`) conține versiunea completă a site-ului **Discover Romania**, convertită în pagini pure **HTML, CSS și JavaScript**, gata pentru a fi publicată pe orice platformă de găzduire web din lume (fără a necesita server Node.js, configurări complexe sau baze de date).
+Acest folder (`hosting-ready/`) conține versiunea completă a site-ului **Drumuri bune**, convertită în pagini pure **HTML, CSS și JavaScript**, gata pentru a fi publicată pe orice platformă de găzduire web din lume (fără a necesita server Node.js, configurări complexe sau baze de date).
 
 ---
 

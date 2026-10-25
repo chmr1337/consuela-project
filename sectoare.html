@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sectoarele și Regiunile României — Discover Romania</title>
+  <title>Sectoarele și Regiunile României — Drumuri bune</title>
   <meta name="description" content="Explorează România pe sectoare istorice și geografice: Transilvania, Muntenia, Moldova, Oltenia, Banat, Crișana, Maramureș, Bucovina, Dobrogea și București.">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="assets/css/styles.css">
@@ -31,10 +31,6 @@
           <span>Explorează pe Harta Interactivă</span>
           <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
         </a>
-        <a href="panou.html" class="inline-flex items-center gap-2 rounded-md border border-[var(--border)] bg-white px-4 py-2 text-sm font-semibold hover:bg-[var(--secondary)]">
-          <svg class="h-4 w-4 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-          <span>Adaugă Articol într-un Sector</span>
-        </a>
       </div>
     </div>
   </section>
@@ -46,24 +42,6 @@
     </div>
   </section>
 
-  <!-- Bottom CTA -->
-  <section class="mx-auto mt-16 max-w-5xl px-6 mb-12">
-    <div class="rounded-2xl border border-[var(--primary)]/20 bg-gradient-to-r from-[var(--primary)]/10 via-[var(--secondary)] to-[var(--primary)]/5 p-8 text-center sm:p-10">
-      <h2 class="text-2xl font-bold tracking-tight text-[var(--foreground)] sm:text-3xl">
-        Lipsește o poveste sau un loc drag din județul tău?
-      </h2>
-      <p className="mx-auto mt-2 max-w-xl text-sm text-[var(--muted-foreground)] sm:text-base">
-        Poți adăuga oricând un articol complet cu fotografii, secțiuni de text și sfaturi practice
-        folosind noul nostru panou de redactare.
-      </p>
-      <div class="mt-6">
-        <a href="panou.html" class="inline-flex items-center gap-2 rounded-lg bg-[var(--primary)] px-6 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-[var(--primary-hover)]">
-          <span>Deschide Panoul de Redactare</span>
-          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-        </a>
-      </div>
-    </div>
-  </section>
 
   <div id="site-footer"></div>
 
@@ -137,9 +115,6 @@
               <div class="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-[var(--border)] pt-4">
                 <a href="index.html?county=${sec.counties[0]}" class="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--primary)] hover:underline">
                   <span>Vezi pe hartă →</span>
-                </a>
-                <a href="panou.html?sector=${sec.id}&judet=${sec.counties[0]}" class="inline-flex items-center gap-1.5 rounded-md bg-[var(--secondary)] px-3 py-1.5 text-xs font-semibold text-[var(--secondary-foreground)] hover:bg-[var(--secondary)]/80">
-                  <span>+ Adaugă articol în ${sec.name}</span>
                 </a>
               </div>
             </div>

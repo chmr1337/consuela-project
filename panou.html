@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Panou de Redactare — Discover Romania</title>
+  <title>Panou de Redactare — Drumuri bune</title>
   <meta name="description" content="Adaugă și editează articole turistice pentru fiecare sector și județ al României.">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="assets/css/styles.css">
@@ -27,6 +27,7 @@
             Scrie, actualizează și publică ghiduri turistice, povești culinare și trasee în natură
             pentru orice zonă din România.
           </p>
+          <a href="/panou?logout" class="mt-2 inline-block text-xs font-semibold text-[var(--muted-foreground)] hover:text-[var(--primary)] hover:underline">Ieși din panou</a>
         </div>
 
         <div id="stats-pills" class="flex flex-wrap gap-2 text-xs font-medium">
@@ -100,32 +101,10 @@
           </div>
         </div>
 
-        <!-- Step 2: Topic Selection -->
+        <!-- Step 2: Article Info -->
         <div class="rounded-xl border border-[var(--border)] bg-white p-6 shadow-xs">
           <h2 class="flex items-center gap-2 text-lg font-bold">
             <span class="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--primary)] text-xs font-bold text-white">2</span>
-            Alege Categoria / Subiectul
-          </h2>
-
-          <div class="mt-4 grid gap-3 sm:grid-cols-3" id="topic-radio-group">
-            <!-- Topics rendered dynamically -->
-          </div>
-
-          <div class="mt-3">
-            <label class="flex cursor-pointer items-center gap-2 rounded-lg border border-[var(--border)] p-3">
-              <input type="radio" name="topic" value="custom" id="topic-custom">
-              <span class="text-sm font-semibold">Subiect personalizat (ex: Festivaluri, Cazări inedite, Trasee cu copii)</span>
-            </label>
-            <div id="custom-topic-input-wrap" class="mt-2 hidden pl-6">
-              <input type="text" id="custom-topic-input" placeholder="Numele noului subiect (ex: Castele și legende locale)" class="w-full rounded-md border border-[var(--input)] px-3 py-2 text-sm outline-none">
-            </div>
-          </div>
-        </div>
-
-        <!-- Step 3: Article Info -->
-        <div class="rounded-xl border border-[var(--border)] bg-white p-6 shadow-xs">
-          <h2 class="flex items-center gap-2 text-lg font-bold">
-            <span class="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--primary)] text-xs font-bold text-white">3</span>
             Informații despre Articol
           </h2>
 
@@ -146,10 +125,20 @@
                 <input type="number" id="article-minutes" min="1" max="60" value="5" class="w-full rounded-md border border-[var(--input)] px-3 py-2 text-sm outline-none focus:border-[var(--ring)]">
               </div>
 
-              <div>
-                <label class="mb-1 block text-sm font-semibold">Imagine de copertă (URL opțional):</label>
-                <input type="url" id="article-image" placeholder="https://images.unsplash.com/..." class="w-full rounded-md border border-[var(--input)] px-3 py-2 text-sm outline-none focus:border-[var(--ring)]">
+            </div>
+
+            <!-- Cover image: URL (ex. Google Imagini) or upload from computer -->
+            <div>
+              <label for="article-image" class="mb-1 block text-sm font-semibold">Imagine de copertă (opțional):</label>
+              <div class="flex flex-col gap-2 sm:flex-row">
+                <input type="text" inputmode="url" id="article-image" placeholder="Lipește adresa unei imagini (ex. din Google Imagini)" class="w-full rounded-md border border-[var(--input)] px-3 py-2 text-sm outline-none focus:border-[var(--ring)]">
+                <label for="article-image-file" class="inline-flex shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 py-2 text-sm font-semibold hover:bg-[var(--muted)]">
+                  📁 Încarcă de pe calculator
+                </label>
+                <input type="file" id="article-image-file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif" class="sr-only">
+                <button type="button" id="article-image-clear" class="hidden shrink-0 rounded-md border border-[var(--border)] px-3 py-2 text-sm hover:bg-[var(--secondary)]">Șterge</button>
               </div>
+              <p id="article-image-status" class="mt-1.5 text-xs text-[var(--muted-foreground)]">Din Google Imagini: deschide imaginea, clic dreapta → „Copiază adresa imaginii” și lipește aici. De pe calculator: JPG, PNG, WEBP sau GIF, maxim 5 MB.</p>
             </div>
 
             <!-- Quick images -->
@@ -162,11 +151,11 @@
           </div>
         </div>
 
-        <!-- Step 4: Content Sections -->
+        <!-- Step 3: Content Sections -->
         <div class="rounded-xl border border-[var(--border)] bg-white p-6 shadow-xs">
           <div class="flex items-center justify-between">
             <h2 class="flex items-center gap-2 text-lg font-bold">
-              <span class="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--primary)] text-xs font-bold text-white">4</span>
+              <span class="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--primary)] text-xs font-bold text-white">3</span>
               Secțiuni de Conținut
             </h2>
             <button type="button" id="btn-add-section" class="flex items-center gap-1.5 rounded-md bg-[var(--secondary)] px-3 py-1.5 text-xs font-semibold hover:bg-[var(--secondary)]/80">
@@ -179,11 +168,11 @@
           </div>
         </div>
 
-        <!-- Step 5: Practical Tips -->
+        <!-- Step 4: Practical Tips -->
         <div class="rounded-xl border border-[var(--border)] bg-white p-6 shadow-xs">
           <div class="flex items-center justify-between">
             <h2 class="flex items-center gap-2 text-lg font-bold">
-              <span class="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--primary)] text-xs font-bold text-white">5</span>
+              <span class="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--primary)] text-xs font-bold text-white">4</span>
               Recomandări Practice («Pe scurt»)
             </h2>
             <button type="button" id="btn-add-tip" class="flex items-center gap-1.5 rounded-md bg-[var(--secondary)] px-3 py-1.5 text-xs font-semibold hover:bg-[var(--secondary)]/80">
@@ -305,7 +294,8 @@
 
       let formSector = getParam("sector") || "all";
       let formCounty = getParam("judet") || "cluj";
-      let formTopic = getParam("topic") || "locuri-de-vizitat";
+      // Subiectul vine doar din link (ex: ?topic=...); altfel slug-ul se generează din titlu
+      const formTopic = getParam("topic");
 
       let sections = [
         { heading: "Puncte de atracție principale", body: "" },
@@ -413,31 +403,6 @@
         updateLivePreview();
       });
 
-      // 3. Topics
-      const topicRadioGroup = document.getElementById("topic-radio-group");
-      const customTopicInputWrap = document.getElementById("custom-topic-input-wrap");
-      const customTopicInput = document.getElementById("custom-topic-input");
-
-      function renderTopics() {
-        topicRadioGroup.innerHTML = window.ARTICLE_TOPICS.map(t => `
-          <label class="flex cursor-pointer flex-col rounded-lg border border-[var(--border)] p-3 hover:bg-[var(--secondary)]/40">
-            <div class="flex items-center gap-2">
-              <input type="radio" name="topic" value="${t.slug}" ${t.slug === formTopic ? "checked" : ""}>
-              <span class="font-semibold text-sm">${t.label}</span>
-            </div>
-            <p class="mt-1 text-xs text-[var(--muted-foreground)]">${t.blurb}</p>
-          </label>
-        `).join("");
-
-        document.querySelectorAll("input[name='topic']").forEach(r => {
-          r.addEventListener("change", () => {
-            formTopic = r.value;
-            customTopicInputWrap.classList.toggle("hidden", formTopic !== "custom");
-            updateLivePreview();
-          });
-        });
-      }
-
       // 4. Preset images
       const presetImagesWrap = document.getElementById("preset-images-pills");
       const articleImage = document.getElementById("article-image");
@@ -454,7 +419,71 @@
         });
       });
 
-      articleImage.addEventListener("input", updateLivePreview);
+      // Imagine din URL (inclusiv linkuri Google Imagini) sau încărcată de pe calculator
+      const articleImageFile = document.getElementById("article-image-file");
+      const articleImageClear = document.getElementById("article-image-clear");
+      const articleImageStatus = document.getElementById("article-image-status");
+      const imageStatusDefault = articleImageStatus.textContent;
+
+      function setImageStatus(text, isError) {
+        articleImageStatus.textContent = text || imageStatusDefault;
+        articleImageStatus.classList.toggle("text-red-600", !!isError);
+        articleImageStatus.classList.toggle("text-[var(--muted-foreground)]", !isError);
+      }
+
+      // Linkurile de tip google.com/imgres?imgurl=... sau google.com/url?url=... conțin adresa reală a imaginii
+      function normalizeImageUrl(value) {
+        const v = value.trim();
+        try {
+          const u = new URL(v);
+          if (/(^|\.)google\./.test(u.hostname)) {
+            const real = u.searchParams.get("imgurl") || u.searchParams.get("mediaurl") || u.searchParams.get("url");
+            if (real && /^https?:\/\//.test(real)) return real;
+          }
+        } catch (e) { /* nu e un URL absolut */ }
+        return v;
+      }
+
+      articleImage.addEventListener("input", () => {
+        setImageStatus();
+        updateLivePreview();
+      });
+      articleImage.addEventListener("change", () => {
+        const fixed = normalizeImageUrl(articleImage.value);
+        if (fixed !== articleImage.value.trim()) {
+          articleImage.value = fixed;
+          setImageStatus("Am extras adresa directă a imaginii din linkul Google.");
+        }
+        updateLivePreview();
+      });
+
+      articleImageClear.addEventListener("click", () => {
+        articleImage.value = "";
+        setImageStatus();
+        updateLivePreview();
+      });
+
+      articleImageFile.addEventListener("change", async () => {
+        const file = articleImageFile.files[0];
+        articleImageFile.value = "";
+        if (!file) return;
+        if (!file.type.startsWith("image/")) return setImageStatus("Fișierul ales nu este o imagine.", true);
+        if (file.size > 5 * 1024 * 1024) return setImageStatus("Imaginea depășește 5 MB.", true);
+
+        setImageStatus(`Se încarcă „${file.name}”...`);
+        try {
+          const body = new FormData();
+          body.append("file", file);
+          const res = await fetch("/api/imagini", { method: "POST", body, credentials: "same-origin" });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok || !data.url) throw new Error(data.error || "Încărcarea a eșuat.");
+          articleImage.value = data.url;
+          setImageStatus(`„${file.name}” a fost încărcată cu succes.`);
+          updateLivePreview();
+        } catch (err) {
+          setImageStatus(err.message || "Încărcarea a eșuat.", true);
+        }
+      });
 
       // 5. Sections builder
       const sectionsContainer = document.getElementById("sections-container");
@@ -544,13 +573,10 @@
         previewExcerpt.textContent = articleExcerpt.value || "Rezumatul articolului va apărea aici...";
         previewReadTime.textContent = `Citește · ${mins} min`;
 
-        if (formTopic === "custom") {
-          previewTopicBadge.textContent = customTopicInput.value || "Special";
-        } else {
-          const tObj = window.ARTICLE_TOPICS.find(t => t.slug === formTopic);
-          previewTopicBadge.textContent = tObj ? tObj.label : "Articol";
-        }
+        const tObj = window.ARTICLE_TOPICS.find(t => t.slug === formTopic);
+        previewTopicBadge.textContent = tObj ? tObj.label : "Articol";
 
+        articleImageClear.classList.toggle("hidden", !articleImage.value.trim());
         if (articleImage.value.trim()) {
           previewImgWrap.classList.remove("hidden");
           previewImg.src = articleImage.value.trim();
@@ -562,7 +588,6 @@
       articleTitle.addEventListener("input", updateLivePreview);
       articleExcerpt.addEventListener("input", updateLivePreview);
       articleMinutes.addEventListener("input", updateLivePreview);
-      customTopicInput.addEventListener("input", updateLivePreview);
 
       // 8. Template Loader
       document.getElementById("btn-load-template").addEventListener("click", () => {
@@ -570,7 +595,7 @@
         const name = cObj ? cObj.name : formCounty;
         const note = window.COUNTY_NOTES ? window.COUNTY_NOTES[formCounty] : null;
 
-        if (formTopic === "locuri-de-vizitat") {
+        if (!formTopic || formTopic === "locuri-de-vizitat") {
           articleTitle.value = `${name}: Comori ascunse, cetăți și plimbări de neuitat`;
           articleExcerpt.value = note && note.intro ? note.intro : `Cele mai frumoase atracții turistice și monumente din ${name}.`;
           articleImage.value = PRESETS[0].url;
@@ -603,13 +628,10 @@
       document.getElementById("article-form").addEventListener("submit", (e) => {
         e.preventDefault();
 
-        const slug = formTopic === "custom"
-          ? (customTopicInput.value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "articol-special")
-          : formTopic;
+        const slug = formTopic || (articleTitle.value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "articol");
 
-        const topicLabel = formTopic === "custom"
-          ? (customTopicInput.value || "Articol Special")
-          : (window.ARTICLE_TOPICS.find(t => t.slug === formTopic)?.label || "Articol");
+        const topicLabel = window.ARTICLE_TOPICS.find(t => t.slug === formTopic)?.label || "Articol";
 
         const newArticle = {
           slug: slug,
@@ -618,7 +640,7 @@
           readMinutes: Number(articleMinutes.value) || 5,
           sections: sections.filter(s => s.heading.trim() || s.body.trim()),
           tips: tips.filter(t => t.trim().length > 0),
-          imageUrl: articleImage.value.trim() || undefined,
+          imageUrl: normalizeImageUrl(articleImage.value) || undefined,
           topicLabel: topicLabel,
           isCustom: true,
           createdAt: new Date().toISOString()
@@ -747,7 +769,6 @@
       updateStats();
       renderFormSectors();
       renderCountySelect();
-      renderTopics();
       renderSections();
       renderTips();
       updateLivePreview();

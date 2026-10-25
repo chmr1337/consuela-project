@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Discover Romania — Harta turismului pe sectoare și județe</title>
+  <title>Drumuri bune — Harta turismului pe sectoare și județe</title>
   <meta name="description" content="Atinge un județ pe harta României și citește articole despre locurile de vizitat, mâncare, tradiții și trasee montane din fiecare sector al țării.">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="assets/css/styles.css">
@@ -23,10 +23,6 @@
         <!-- Rendered dynamically -->
       </div>
 
-      <a href="panou.html" class="flex items-center gap-1.5 rounded-md border border-[var(--primary)]/30 bg-[var(--primary)]/10 px-3 py-1 text-xs font-semibold text-[var(--primary)] transition-colors hover:bg-[var(--primary)]/20">
-        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-        <span>Adaugă articol</span>
-      </a>
     </div>
   </section>
 
@@ -59,6 +55,12 @@
           <svg id="romania-svg-map" class="h-auto w-full select-none" role="img" aria-label="Harta României">
             <!-- Rendered dynamically -->
           </svg>
+
+          <!-- Map Hint -->
+          <div id="map-hint" class="map-hint pointer-events-none absolute bottom-4 left-1/2 flex w-max max-w-[90%] text-center -translate-x-1/2 items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--card)]/95 px-4 py-1.5 text-xs font-medium text-[var(--muted-foreground)] shadow-md">
+            <svg class="map-hint-icon h-4 w-4 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"/></svg>
+            <span>Treci cu mouse-ul peste hartă pentru a vedea județul și sectorul țării · atinge pentru detalii</span>
+          </div>
 
           <!-- Hover Tooltip -->
           <div id="map-tooltip" class="pointer-events-none absolute left-6 top-6 hidden items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--foreground)] px-3.5 py-1.5 text-sm font-semibold text-white shadow-lg">
@@ -95,6 +97,7 @@
       const countySearch = document.getElementById("county-search");
       const mapSvg = document.getElementById("romania-svg-map");
       const tooltip = document.getElementById("map-tooltip");
+      const mapHint = document.getElementById("map-hint");
       const tooltipName = document.getElementById("tooltip-name");
       const tooltipSector = document.getElementById("tooltip-sector");
       const cardContainer = document.getElementById("selected-county-card");
@@ -142,6 +145,7 @@
 
           path.addEventListener("mouseenter", () => {
             hoveredCounty = slug;
+            mapHint.classList.add("is-hidden");
             const sec = AppStore.getSectorByCounty(slug);
             tooltipName.textContent = name;
             tooltipSector.textContent = sec ? ` · Sector ${sec.name}` : "";
@@ -152,6 +156,7 @@
 
           path.addEventListener("mouseleave", () => {
             hoveredCounty = null;
+            mapHint.classList.remove("is-hidden");
             tooltip.classList.add("hidden");
             tooltip.classList.remove("flex");
             updateMapHighlights();
@@ -243,7 +248,6 @@
               <h3 class="mt-2 text-lg font-bold text-[var(--foreground)]">Alege un județ de pe hartă sau din listă</h3>
               <p class="mx-auto mt-1 max-w-md text-sm text-[var(--muted-foreground)]">Atinge un județ pentru a citi recomandările de vizitat, gastronomia și traseele de drumeție.</p>
               <div class="mt-4 flex flex-wrap justify-center gap-2">
-                <a href="panou.html" class="inline-flex items-center gap-1.5 rounded-md bg-[var(--primary)] px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-[var(--primary-hover)]">+ Adaugă Articol în Panou</a>
                 <a href="sectoare.html" class="inline-flex items-center gap-1.5 rounded-md border border-[var(--input)] bg-[var(--secondary)] px-4 py-2 text-xs font-semibold hover:bg-[var(--secondary)]/80">Vezi Sectoarele României</a>
               </div>
             </div>
@@ -268,9 +272,6 @@
             </div>
 
             <div class="flex items-center gap-2">
-              <a href="panou.html?judet=${activeCounty}" class="inline-flex items-center gap-1.5 rounded-md border border-[var(--input)] bg-[var(--secondary)] px-3 py-1.5 text-xs font-semibold hover:bg-[var(--secondary)]/80">
-                <span>+ Adaugă Articol</span>
-              </a>
               <a href="judet.html?judet=${activeCounty}" class="inline-flex items-center gap-1 text-sm font-semibold text-[var(--primary)] hover:underline">
                 <span>Pagina județului →</span>
               </a>
@@ -290,11 +291,7 @@
                         <span class="text-xs font-bold uppercase tracking-wide text-[var(--accent)]">${topic.label}</span>
                         <p class="mt-1 text-xs text-[var(--muted-foreground)]">${topic.blurb}</p>
                       </div>
-                      <div class="mt-4 pt-2">
-                        <a href="panou.html?judet=${activeCounty}&topic=${topic.slug}" class="inline-flex items-center gap-1 text-xs font-semibold text-[var(--primary)] hover:underline">
-                          + Scrie acest articol
-                        </a>
-                      </div>
+                      <p class="mt-4 pt-2 text-xs italic text-[var(--muted-foreground)]">În curând</p>
                     </div>
                   `;
                 }

@@ -1,4 +1,4 @@
-// Discover Romania - Main Application Logic & Store for Static Hosting
+// Drumuri bune - Main Application Logic & Store for Static Hosting
 (function () {
   const STORAGE_KEY = "discover_romania_custom_articles_v1";
   const EVENT_NAME = "discover-romania-articles-updated";
@@ -148,10 +148,10 @@
     if (!header) return;
 
     header.innerHTML = `
-      <header class="sticky top-0 z-30 border-b border-[var(--border)] bg-[#faf8f5]/95 backdrop-blur px-6 py-3.5">
+      <header class="sticky top-0 z-30 border-b border-[var(--border)] bg-[#f7f5ef]/95 backdrop-blur px-6 py-3.5">
         <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3">
           <a href="index.html" class="flex items-baseline gap-2 text-decoration-none">
-            <span class="font-display text-xl font-bold text-[var(--primary)]">Discover Romania</span>
+            <span class="font-display text-xl font-bold text-[var(--primary)]">Drumuri bune</span>
             <span class="hidden text-xs text-[var(--muted-foreground)] sm:inline">ghid pe sectoare și județe</span>
           </a>
           <div class="flex items-center gap-2">
@@ -169,9 +169,6 @@
                 activePage === "despre" ? "bg-[var(--secondary)] font-bold text-[var(--primary)]" : "text-[var(--muted-foreground)] hover:bg-[var(--secondary)]"
               }">Despre</a>
             </nav>
-            <a href="panou.html" class="hidden items-center gap-1.5 rounded-md bg-[var(--primary)] px-3 py-1.5 text-xs font-semibold text-white shadow-xs transition-colors hover:bg-[var(--primary-hover)] sm:inline-flex">
-              <span>+ Adaugă Articol</span>
-            </a>
           </div>
         </div>
       </header>
@@ -184,10 +181,10 @@
     if (!footer) return;
 
     footer.innerHTML = `
-      <footer class="mt-16 border-t border-[var(--border)] bg-[#faf8f5]">
+      <footer class="mt-16 border-t border-[var(--border)] bg-[#f7f5ef]">
         <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-6 py-8 text-sm text-[var(--muted-foreground)]">
           <div class="flex items-center gap-2">
-            <span class="font-bold text-[var(--foreground)]">Discover Romania</span>
+            <span class="font-bold text-[var(--foreground)]">Drumuri bune</span>
             <span>— ghid turistic județ cu județ</span>
           </div>
           <div class="flex items-center gap-4 text-xs font-semibold">

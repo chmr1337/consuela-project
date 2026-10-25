@@ -1,4 +1,4 @@
-// Discover Romania - Standalone Data Bundle for Static Hosting
+// Drumuri bune - Standalone Data Bundle for Static Hosting
 window.MAP_VIEWBOX = "0 0 1000 705";
 
 window.ROMANIA_SECTORS = [

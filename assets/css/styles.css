@@ -3,24 +3,24 @@
 :root {
   --font-display: 'Fraunces', Georgia, serif;
   --font-body: 'Karla', system-ui, -apple-system, sans-serif;
-  --primary: #94392e;
-  --primary-hover: #7b2e24;
-  --primary-light: rgba(148, 57, 46, 0.08);
-  --background: #faf8f5;
-  --foreground: #2d2621;
+  --primary: #2f5d3a;
+  --primary-hover: #234a2d;
+  --primary-light: rgba(47, 93, 58, 0.08);
+  --background: #f7f5ef;
+  --foreground: #2e2418;
   --card: #ffffff;
-  --card-foreground: #2d2621;
-  --secondary: #f0ebe1;
-  --secondary-foreground: #473d35;
-  --muted: #f4efe6;
-  --muted-foreground: #73695f;
-  --accent: #d9822b;
-  --border: #e3dcce;
-  --input: #e3dcce;
-  --ring: #94392e;
-  --map-land: #dce5cf;
-  --map-hover: #e8a860;
-  --map-stroke: #faf8f5;
+  --card-foreground: #2e2418;
+  --secondary: #ece5d8;
+  --secondary-foreground: #4a3a28;
+  --muted: #f1ede3;
+  --muted-foreground: #6e6250;
+  --accent: #8b5a2b;
+  --border: #ddd6c4;
+  --input: #ddd6c4;
+  --ring: #2f5d3a;
+  --map-land: #d4e2c6;
+  --map-hover: #b5895a;
+  --map-stroke: #f7f5ef;
   --radius: 0.75rem;
 }
 
@@ -101,4 +101,22 @@ h1, h2, h3, h4, .font-display {
 
 .animate-fade-in {
   animation: fadeIn 0.25s ease forwards;
+}
+
+/* Map hover hint */
+.map-hint {
+  transition: opacity 0.25s ease;
+}
+.map-hint.is-hidden {
+  opacity: 0;
+}
+.map-hint-icon {
+  animation: map-hint-nudge 1.6s ease-in-out infinite;
+}
+@keyframes map-hint-nudge {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(3px, -3px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .map-hint-icon { animation: none; }
 }
