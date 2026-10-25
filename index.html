@@ -24,34 +24,19 @@
 <body class="min-h-screen flex flex-col justify-between">
   <div id="site-header"></div>
 
-  <!-- Sector Navigation Filter Bar -->
-  <section class="border-b border-[var(--border)] bg-gradient-to-r from-[var(--secondary)] via-[var(--background)] to-[var(--secondary)] px-6 py-4">
-    <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3">
-      <div class="flex items-center gap-2">
-        <svg class="h-4 w-4 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v20m10-10H2m18.07-7.07l-1.41 1.41M5.34 18.66l-1.41 1.41M18.66 18.66l-1.41-1.41M5.34 5.34l-1.41 1.41"/></svg>
-        <span class="text-xs font-bold uppercase tracking-wider text-[var(--muted-foreground)]">Filtru Sector:</span>
-      </div>
-
-      <div id="sector-filters" class="flex flex-wrap items-center gap-1.5">
-        <!-- Rendered dynamically -->
-      </div>
-
-    </div>
-  </section>
-
   <!-- Main Explorer Layout -->
-  <div class="flex-1 mx-auto w-full max-w-6xl p-4 sm:p-6">
-    <div class="flex flex-col lg:grid lg:grid-cols-[280px_1fr] gap-6 items-start">
+  <div class="flex-1 mx-auto w-full max-w-6xl p-3 sm:p-6">
+    <div class="flex flex-col lg:grid lg:grid-cols-[290px_1fr] gap-4 sm:gap-6 items-start">
 
-      <!-- 1. Harta României: First on mobile (order-1), top of right column on desktop (lg:col-start-2 lg:row-start-1) -->
-      <div id="map-wrapper" class="order-1 lg:order-none lg:col-start-2 lg:row-start-1 w-full relative overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--card)] p-3 sm:p-4 shadow-xs">
+      <!-- 1. Harta României: FIRST ON MOBILE (order-1), top of right column on desktop (lg:col-start-2 lg:row-start-2) -->
+      <div id="map-wrapper" class="order-1 lg:order-none lg:col-start-2 lg:row-start-2 w-full relative overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--card)] p-2.5 sm:p-4 shadow-xs">
         <svg id="romania-svg-map" class="h-auto w-full select-none" role="img" aria-label="Harta României">
           <!-- Rendered dynamically -->
         </svg>
 
         <!-- Map Hint -->
-        <div id="map-hint" class="map-hint pointer-events-none absolute bottom-3 sm:bottom-4 left-1/2 flex w-max max-w-[92%] text-center -translate-x-1/2 items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--card)]/95 px-3.5 py-1.5 text-xs font-medium text-[var(--muted-foreground)] shadow-md">
-          <svg class="map-hint-icon h-4 w-4 text-[var(--primary)] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"/></svg>
+        <div id="map-hint" class="map-hint pointer-events-none absolute bottom-2.5 sm:bottom-4 left-1/2 flex w-max max-w-[92%] text-center -translate-x-1/2 items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--card)]/95 px-3 py-1 sm:px-3.5 sm:py-1.5 text-[11px] sm:text-xs font-medium text-[var(--muted-foreground)] shadow-md">
+          <svg class="map-hint-icon h-3.5 w-3.5 sm:h-4 sm:w-4 text-[var(--primary)] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"/></svg>
           <span class="hidden sm:inline">Treci cu mouse-ul peste hartă sau atinge un județ pentru detalii</span>
           <span class="sm:hidden">Atinge un județ de pe hartă pentru detalii</span>
         </div>
@@ -63,17 +48,30 @@
         </div>
       </div>
 
-      <!-- 2. Lista de județe: Second on mobile (order-2), left column on desktop (lg:col-start-1 lg:row-start-1 lg:row-span-2) -->
-      <aside class="order-2 lg:order-none lg:col-start-1 lg:row-start-1 lg:row-span-2 lg:sticky lg:top-20 flex flex-col w-full rounded-xl border border-[var(--border)] bg-[var(--card)] p-3 sm:p-4 shadow-xs">
+      <!-- 2. Sector Navigation Filter Bar: Second on mobile (order-2), top bar on desktop (lg:col-span-2 lg:row-start-1) -->
+      <section id="sector-filter-section" class="order-2 lg:order-none lg:col-span-2 lg:row-start-1 w-full rounded-xl border border-[var(--border)] bg-gradient-to-r from-[var(--secondary)]/60 via-[var(--background)] to-[var(--secondary)]/60 px-3 sm:px-4 py-2 sm:py-2.5 shadow-xs">
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex items-center gap-1.5 shrink-0">
+            <svg class="h-3.5 w-3.5 text-[var(--primary)] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v20m10-10H2m18.07-7.07l-1.41 1.41M5.34 18.66l-1.41 1.41M18.66 18.66l-1.41-1.41M5.34 5.34l-1.41 1.41"/></svg>
+            <span class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[var(--muted-foreground)]">Sectoare:</span>
+          </div>
+          <div id="sector-filters" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 lg:flex-wrap">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. Lista de județe: Third on mobile (order-3), left column on desktop (lg:col-start-1 lg:row-start-2 lg:row-span-2) -->
+      <aside id="county-list-aside" class="order-3 lg:order-none lg:col-start-1 lg:row-start-2 lg:row-span-2 lg:sticky lg:top-20 flex flex-col w-full rounded-xl border border-[var(--border)] bg-[var(--card)] p-3 sm:p-4 shadow-xs">
         <div class="flex items-center justify-between pb-2 border-b border-[var(--border)]/60">
           <div class="flex items-center gap-1.5">
             <h2 id="county-list-title" class="text-sm sm:text-base font-bold text-[var(--foreground)]">Județe (42)</h2>
-            <span class="text-[10px] text-[var(--muted-foreground)] bg-[var(--secondary)] px-1.5 py-0.5 rounded font-medium">derulează</span>
+            <span class="text-[10px] text-[var(--muted-foreground)] bg-[var(--secondary)] px-1.5 py-0.5 rounded font-medium">derulează (5 pe ecran)</span>
           </div>
           <a href="sectoare.html" class="text-xs text-[var(--primary)] font-semibold underline-offset-2 hover:underline">Sectoare →</a>
         </div>
 
-        <div class="my-2.5">
+        <div class="my-2">
           <input
             id="county-search"
             type="text"
@@ -82,16 +80,16 @@
           />
         </div>
 
-        <!-- Scrollable compact container -->
+        <!-- Scrollable container: EXACTLY 5 items visible on mobile, scrollable -->
         <div class="relative overflow-hidden rounded-md">
-          <ul id="county-list" class="max-h-52 sm:max-h-60 lg:max-h-[calc(100vh-230px)] space-y-0.5 overflow-y-auto overscroll-contain pr-1">
+          <ul id="county-list" class="max-h-[206px] lg:max-h-[calc(100vh-240px)] space-y-1 overflow-y-auto overscroll-contain pr-1">
             <!-- Rendered dynamically -->
           </ul>
         </div>
       </aside>
 
-      <!-- 3. Detalii județ selectat: Third on mobile (order-3), right column row 2 on desktop (lg:col-start-2 lg:row-start-2) -->
-      <section id="selected-county-card" class="order-3 lg:order-none lg:col-start-2 lg:row-start-2 w-full rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 sm:p-6 shadow-xs">
+      <!-- 4. Detalii județ selectat: Fourth on mobile (order-4), right column row 3 on desktop (lg:col-start-2 lg:row-start-3) -->
+      <section id="selected-county-card" class="order-4 lg:order-none lg:col-start-2 lg:row-start-3 w-full rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 sm:p-6 shadow-xs">
         <!-- Rendered dynamically -->
       </section>
 
@@ -153,11 +151,11 @@
       // 1. Render Sector Filter Buttons
       function renderSectors() {
         sectorContainer.innerHTML = `
-          <button data-sector="all" class="sector-btn rounded-md px-3 py-1 text-xs font-semibold transition-colors ${
+          <button data-sector="all" class="sector-btn shrink-0 rounded-md px-2.5 py-1 text-xs font-semibold transition-colors ${
             activeSector === "all" ? "bg-[var(--primary)] text-white shadow-xs" : "bg-[var(--secondary)] text-[var(--foreground)] hover:bg-[var(--secondary)]/80"
           }">Toată țara</button>
         ` + window.ROMANIA_SECTORS.map(s => `
-          <button data-sector="${s.id}" class="sector-btn rounded-md px-2.5 py-1 text-xs font-semibold transition-colors ${
+          <button data-sector="${s.id}" class="sector-btn shrink-0 rounded-md px-2.5 py-1 text-xs font-semibold transition-colors ${
             activeSector === s.id ? "bg-[var(--primary)] text-white shadow-xs" : "bg-[var(--secondary)] text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/80 hover:text-[var(--foreground)]"
           }">${s.name}</button>
         `).join("");
@@ -256,11 +254,11 @@
             <li>
               <button
                 data-slug="${c.slug}"
-                class="county-item-btn flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-left text-xs sm:text-sm transition-colors cursor-pointer ${
+                class="county-item-btn flex w-full h-[38px] items-center justify-between rounded-md px-2.5 text-left text-xs sm:text-sm transition-colors cursor-pointer ${
                   isSelected ? "bg-[var(--primary)] font-semibold text-white shadow-xs" : "text-[var(--foreground)] hover:bg-[var(--secondary)]"
                 }"
               >
-                <span class="truncate">${c.name}</span>
+                <span class="truncate font-medium">${c.name}</span>
                 ${hasArt ? `<span class="ml-1 shrink-0 text-[10px] font-bold ${isSelected ? "text-white/90" : "text-emerald-700"}">● Articole</span>` : ""}
               </button>
             </li>
@@ -280,6 +278,12 @@
         renderCountyList();
         updateMapHighlights();
         renderCard();
+
+        // Auto-scroll selected item into view inside the scrollable county list
+        const activeBtn = countyList.querySelector(`[data-slug="${slug}"]`);
+        if (activeBtn) {
+          activeBtn.scrollIntoView({ block: "nearest", behavior: "smooth" });
+        }
 
         if (typeof gtag === "function") {
           const sec = AppStore.getSectorByCounty(slug);

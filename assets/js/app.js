@@ -156,24 +156,24 @@
     if (!header) return;
 
     header.innerHTML = `
-      <header class="sticky top-0 z-30 border-b border-[var(--border)] bg-[#f7f5ef]/95 backdrop-blur px-6 py-3.5">
-        <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3">
-          <a href="index.html" class="flex items-baseline gap-2 text-decoration-none">
-            <span class="font-display text-xl font-bold text-[var(--primary)]">Drumuri bune</span>
-            <span class="hidden text-xs text-[var(--muted-foreground)] sm:inline">ghid pe sectoare și județe</span>
+      <header class="sticky top-0 z-30 border-b border-[var(--border)] bg-[#f7f5ef]/95 backdrop-blur px-3.5 py-2.5 sm:px-6 sm:py-3.5">
+        <div class="mx-auto flex max-w-6xl items-center justify-between gap-2">
+          <a href="index.html" class="flex items-baseline gap-1.5 sm:gap-2 text-decoration-none shrink-0">
+            <span class="font-display text-lg sm:text-xl font-bold text-[var(--primary)]">Drumuri bune</span>
+            <span class="hidden text-xs text-[var(--muted-foreground)] md:inline">ghid pe sectoare și județe</span>
           </a>
-          <div class="flex items-center gap-2">
-            <nav class="flex items-center gap-1 text-sm font-medium">
-              <a href="index.html" class="rounded-md px-3 py-1.5 transition-colors ${
+          <div class="flex items-center gap-1 overflow-x-auto no-scrollbar">
+            <nav class="flex items-center gap-0.5 sm:gap-1 text-xs sm:text-sm font-medium">
+              <a href="index.html" class="rounded-md px-2 py-1 sm:px-3 sm:py-1.5 transition-colors whitespace-nowrap ${
                 activePage === "harta" ? "bg-[var(--secondary)] font-bold text-[var(--primary)]" : "text-[var(--muted-foreground)] hover:bg-[var(--secondary)]"
               }">Harta</a>
-              <a href="sectoare.html" class="rounded-md px-3 py-1.5 transition-colors ${
+              <a href="sectoare.html" class="rounded-md px-2 py-1 sm:px-3 sm:py-1.5 transition-colors whitespace-nowrap ${
                 activePage === "sectoare" ? "bg-[var(--secondary)] font-bold text-[var(--primary)]" : "text-[var(--muted-foreground)] hover:bg-[var(--secondary)]"
-              }">Sectoare & Regiuni</a>
-              <a href="panou.html" class="rounded-md px-3 py-1.5 transition-colors ${
+              }">Sectoare<span class="hidden sm:inline"> & Regiuni</span></a>
+              <a href="panou.html" class="rounded-md px-2 py-1 sm:px-3 sm:py-1.5 transition-colors whitespace-nowrap ${
                 activePage === "panou" ? "bg-[var(--secondary)] font-bold text-[var(--primary)]" : "text-[var(--muted-foreground)] hover:bg-[var(--secondary)]"
-              }">Panou Articole</a>
-              <a href="despre.html" class="rounded-md px-3 py-1.5 transition-colors ${
+              }">Panou<span class="hidden sm:inline"> Articole</span></a>
+              <a href="despre.html" class="rounded-md px-2 py-1 sm:px-3 sm:py-1.5 transition-colors whitespace-nowrap ${
                 activePage === "despre" ? "bg-[var(--secondary)] font-bold text-[var(--primary)]" : "text-[var(--muted-foreground)] hover:bg-[var(--secondary)]"
               }">Despre</a>
             </nav>

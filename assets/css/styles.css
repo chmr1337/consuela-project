@@ -78,6 +78,15 @@ h1, h2, h3, h4, .font-display {
   background: var(--muted-foreground);
 }
 
+/* Hide scrollbar utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 /* Helpers */
 .line-clamp-2 {
   display: -webkit-box;
