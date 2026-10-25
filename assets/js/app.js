@@ -1,9 +1,19 @@
 // Drumuri bune - Main Application Logic & Store for Static Hosting
 (function () {
-  const STORAGE_KEY = "discover_romania_custom_articles_v1";
-  const UGC_STORAGE_KEY = "discover_romania_ugc_submissions_v2";
+  const STORAGE_KEY = "discover_romania_custom_articles_v3";
+  const UGC_STORAGE_KEY = "discover_romania_ugc_submissions_v3";
   const EVENT_NAME = "discover-romania-articles-updated";
   const UGC_EVENT_NAME = "discover-romania-ugc-updated";
+
+  // Curățare inițială a datelor vechi salvate local pentru a porni de la 0 articole
+  try {
+    localStorage.removeItem("discover_romania_custom_articles_v1");
+    localStorage.removeItem("discover_romania_custom_articles_v2");
+    localStorage.removeItem("discover_romania_ugc_submissions_v1");
+    localStorage.removeItem("discover_romania_ugc_submissions_v2");
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(UGC_STORAGE_KEY);
+  } catch (e) {}
 
   function getCustomArticles() {
     try {
@@ -31,42 +41,7 @@
   function getUgcSubmissions() {
     try {
       const raw = localStorage.getItem(UGC_STORAGE_KEY);
-      if (!raw) {
-        // Articol demonstrativ în așteptare pentru testarea moderării din Centrul de Control
-        const demo = [
-          {
-            id: "ugc_init_1",
-            countySlug: "brasov",
-            topicSlug: "locuri-de-vizitat",
-            topicLabel: "Locuri de vizitat",
-            title: "Biserica Neagră și străduțele secrete din Șcheii Brașovului",
-            excerpt: "O perspectivă autentică despre cele mai liniștite colțuri medievale din Brașov, scrise de un călător pasionat.",
-            authorName: "Andrei Moldovan",
-            authorEmail: "andrei.calator@exemplu.ro",
-            readMinutes: 5,
-            imageUrl: "https://images.unsplash.com/photo-1549880338-65ddcdfd017b?q=80&w=1200&auto=format&fit=crop",
-            sections: [
-              {
-                heading: "Dincolo de Piața Sfatului: Ulițele din Șchei",
-                body: "Majoritatea vizitatorilor se opresc în Piața Sfatului, dar farmecul Brașovului se ascunde pe străduțele pietruite din Șchei, unde troițele vechi și porțile înalte păstrează ecoul vremurilor de demult."
-              },
-              {
-                heading: "Prima Școală Românească și Piața Unirii",
-                body: "O oprire la biserica Sfântul Nicolae oferă o atmosferă liniștită și acces la prima tiparniță și școală românească, un loc plin de încărcătură culturală."
-              }
-            ],
-            tips: [
-              "Dimineața devreme lumina pe zidurile vechi este perfectă pentru fotografii.",
-              "Urcă pe strada Prundului spre Pietrele lui Solomon pentru o plimbare revigorantă în natură."
-            ],
-            status: "pending", // "pending" | "approved" | "denied"
-            submittedAt: new Date(Date.now() - 3600000 * 2).toISOString(),
-            isUgc: true
-          }
-        ];
-        localStorage.setItem(UGC_STORAGE_KEY, JSON.stringify(demo));
-        return demo;
-      }
+      if (!raw) return [];
       const parsed = JSON.parse(raw);
       return Array.isArray(parsed) ? parsed : [];
     } catch (e) {
@@ -164,7 +139,15 @@
 
     resetToDefault() {
       localStorage.removeItem(STORAGE_KEY);
-      window.dispatchEvent(new Event(EVENT_NAME));
+      localStorage.removeItem(UGC_STORAGE_KEY);
+      if (typeof window.dispatchEvent === "function") {
+        window.dispatchEvent(new Event(EVENT_NAME));
+        window.dispatchEvent(new Event(UGC_EVENT_NAME));
+      }
+    },
+
+    deleteAllArticles() {
+      this.resetToDefault();
     },
 
     exportJson() {
