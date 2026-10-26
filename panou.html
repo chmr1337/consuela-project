@@ -238,21 +238,24 @@
 
           <div class="mt-4 space-y-4">
             <div>
-              <label class="mb-1 block text-sm font-semibold">Titlul Articolului:</label>
+              <label class="mb-1 block text-sm font-semibold">Titlul Articolului *:</label>
               <input type="text" id="article-title" placeholder="Ex: Cluj: Centrul vechi, sarea de la Turda și dealurile din jur" class="w-full rounded-md border border-[var(--input)] px-3.5 py-2 text-base font-medium outline-none focus:border-[var(--ring)]" required>
+            </div>
+
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label class="mb-1 block text-sm font-semibold">Nume Autor / Redactor:</label>
+                <input type="text" id="article-author" placeholder="ex: Maria Popescu sau Echipa Drumuri bune" class="w-full rounded-md border border-[var(--input)] px-3 py-2 text-sm outline-none focus:border-[var(--ring)]">
+              </div>
+              <div>
+                <label class="mb-1 block text-sm font-semibold">Timp de lectură (minute):</label>
+                <input type="number" id="article-minutes" min="1" max="60" value="5" class="w-full rounded-md border border-[var(--input)] px-3 py-2 text-sm outline-none focus:border-[var(--ring)]">
+              </div>
             </div>
 
             <div>
               <label class="mb-1 block text-sm font-semibold">Scurt rezumat (Excerpt):</label>
               <textarea id="article-excerpt" rows="2" placeholder="O scurtă descriere atractivă pentru cititori." class="w-full rounded-md border border-[var(--input)] px-3 py-2 text-sm outline-none focus:border-[var(--ring)]"></textarea>
-            </div>
-
-            <div class="grid gap-4 sm:grid-cols-2">
-              <div>
-                <label class="mb-1 block text-sm font-semibold">Timp de lectură (minute):</label>
-                <input type="number" id="article-minutes" min="1" max="60" value="5" class="w-full rounded-md border border-[var(--input)] px-3 py-2 text-sm outline-none focus:border-[var(--ring)]">
-              </div>
-
             </div>
 
             <!-- Cover image: URL (ex. Google Imagini) or upload from computer -->
@@ -670,9 +673,15 @@
 
                       <div class="ugc-full-content hidden mt-3 rounded-lg border border-[var(--border)] bg-[var(--background)] p-4 text-xs space-y-3">
                         ${(sub.sections || []).map((sec, idx) => `
-                          <div>
+                          <div class="border-b border-[var(--border)]/40 pb-2">
                             <h5 class="font-bold text-[var(--foreground)]">${idx + 1}. ${sec.heading}</h5>
+                            ${sec.imageUrl ? `
+                              <div class="my-1.5 h-20 w-32 rounded overflow-hidden border border-[var(--border)]">
+                                <img src="${sec.imageUrl}" alt="" class="h-full w-full object-cover" referrerpolicy="no-referrer">
+                              </div>
+                            ` : ""}
                             <p class="mt-1 text-[var(--muted-foreground)] whitespace-pre-line leading-relaxed">${sec.body}</p>
+                            ${sec.imageCaption ? `<p class="mt-0.5 text-[10px] text-[var(--muted-foreground)] italic">📷 ${sec.imageCaption}</p>` : ""}
                           </div>
                         `).join("")}
 
@@ -780,6 +789,7 @@
                 renderFormSectors();
                 renderCountySelect();
                 articleTitle.value = sub.title;
+                if (articleAuthor) articleAuthor.value = sub.authorName || "";
                 articleExcerpt.value = sub.excerpt;
                 articleMinutes.value = sub.readMinutes || 5;
                 if (sub.imageUrl) articleImage.value = sub.imageUrl;
@@ -981,17 +991,54 @@
         }
       });
 
-      // 5. Sections builder
+      // 5. Sections builder (Heading, Body Text, and Photos in Body)
       const sectionsContainer = document.getElementById("sections-container");
       function renderSections() {
         sectionsContainer.innerHTML = sections.map((sec, i) => `
-          <div class="rounded-lg border border-[var(--border)] bg-[var(--background)] p-4 space-y-2">
+          <div class="rounded-xl border border-[var(--border)] bg-[var(--background)] p-4 sm:p-5 space-y-3 shadow-xs">
             <div class="flex items-center justify-between">
-              <span class="text-xs font-bold uppercase text-[var(--muted-foreground)]">Secțiunea ${i + 1}</span>
-              ${sections.length > 1 ? `<button type="button" data-idx="${i}" class="btn-del-sec text-xs text-red-600 hover:underline">Șterge</button>` : ""}
+              <span class="text-xs font-bold uppercase tracking-wider text-[var(--primary)]">Secțiunea ${i + 1}</span>
+              ${sections.length > 1 ? `<button type="button" data-idx="${i}" class="btn-del-sec text-xs text-red-600 hover:underline cursor-pointer">✕ Șterge secțiunea</button>` : ""}
             </div>
-            <input type="text" data-idx="${i}" class="sec-heading w-full rounded-md border border-[var(--input)] bg-white px-3 py-1.5 text-sm font-semibold outline-none" value="${sec.heading}" placeholder="Subtitlu secțiune" required>
-            <textarea data-idx="${i}" rows="3" class="sec-body w-full rounded-md border border-[var(--input)] bg-white px-3 py-1.5 text-sm outline-none" placeholder="Conținut..." required>${sec.body}</textarea>
+
+            <div>
+              <label class="block text-xs font-semibold text-[var(--foreground)] mb-1">Subtitlu secțiune *</label>
+              <input type="text" data-idx="${i}" class="sec-heading w-full rounded-md border border-[var(--input)] bg-white px-3 py-1.5 text-sm font-semibold outline-none focus:border-[var(--ring)]" value="${sec.heading || ""}" placeholder="Subtitlu secțiune (ex: Centrul Vechi și Cazino)" required>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-[var(--foreground)] mb-1">Text conținut *</label>
+              <textarea data-idx="${i}" rows="3" class="sec-body w-full rounded-md border border-[var(--input)] bg-white px-3 py-1.5 text-sm outline-none focus:border-[var(--ring)]" placeholder="Descrie atracțiile, monumentele sau traseul..." required>${sec.body || ""}</textarea>
+            </div>
+
+            <!-- Foto în corpul secțiunii -->
+            <div class="rounded-lg border border-dashed border-[var(--border)] bg-white p-3 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold text-[var(--foreground)] flex items-center gap-1.5">
+                  <span>🖼️</span>
+                  <span>Foto în corpul acestei secțiuni (opțional)</span>
+                </span>
+                ${sec.imageUrl ? `<button type="button" data-idx="${i}" class="btn-del-sec-img text-[11px] text-red-600 hover:underline cursor-pointer">Șterge foto</button>` : ""}
+              </div>
+
+              <div class="flex flex-col sm:flex-row gap-2">
+                <input type="text" data-idx="${i}" class="sec-img-url flex-1 rounded-md border border-[var(--input)] bg-white px-2.5 py-1.5 text-xs outline-none focus:border-[var(--ring)]" placeholder="Lipește URL imagine (sau apasă Încarcă)" value="${sec.imageUrl || ""}">
+                <label class="inline-flex shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 py-1.5 text-xs font-semibold hover:bg-[var(--secondary)]/80 text-[var(--foreground)]">
+                  📁 Încarcă foto
+                  <input type="file" data-idx="${i}" class="sec-img-file sr-only" accept="image/*">
+                </label>
+              </div>
+
+              <input type="text" data-idx="${i}" class="sec-img-caption w-full rounded-md border border-[var(--input)] bg-white px-2.5 py-1.5 text-xs outline-none focus:border-[var(--ring)]" placeholder="Legendă foto (opțional, ex: Vedere spre piața centrală)" value="${sec.imageCaption || ""}">
+
+              <div class="sec-status-msg text-[11px] text-[var(--muted-foreground)]" data-idx="${i}"></div>
+
+              ${sec.imageUrl ? `
+                <div class="relative mt-1 h-32 w-full max-w-sm rounded-lg overflow-hidden border border-[var(--border)] bg-[var(--secondary)]">
+                  <img src="${sec.imageUrl}" alt="" class="h-full w-full object-cover" referrerpolicy="no-referrer">
+                </div>
+              ` : ""}
+            </div>
           </div>
         `).join("");
 
@@ -1000,11 +1047,56 @@
             sections[e.target.dataset.idx].heading = e.target.value;
           });
         });
+
         sectionsContainer.querySelectorAll(".sec-body").forEach(ta => {
           ta.addEventListener("input", (e) => {
             sections[e.target.dataset.idx].body = e.target.value;
           });
         });
+
+        sectionsContainer.querySelectorAll(".sec-img-url").forEach(inp => {
+          inp.addEventListener("change", (e) => {
+            const idx = e.target.dataset.idx;
+            sections[idx].imageUrl = normalizeImageUrl(e.target.value) || undefined;
+            renderSections();
+          });
+        });
+
+        sectionsContainer.querySelectorAll(".sec-img-caption").forEach(inp => {
+          inp.addEventListener("input", (e) => {
+            sections[e.target.dataset.idx].imageCaption = e.target.value.trim() || undefined;
+          });
+        });
+
+        sectionsContainer.querySelectorAll(".sec-img-file").forEach(fileInput => {
+          fileInput.addEventListener("change", async (e) => {
+            const idx = e.target.dataset.idx;
+            const file = fileInput.files[0];
+            fileInput.value = "";
+            if (!file) return;
+
+            const statusEl = sectionsContainer.querySelector(`.sec-status-msg[data-idx="${idx}"]`);
+            if (statusEl) statusEl.textContent = `Se optimizează „${file.name}”...`;
+
+            try {
+              const dataUrl = await window.compressAndReadImage(file);
+              sections[idx].imageUrl = dataUrl;
+              renderSections();
+            } catch (err) {
+              if (statusEl) statusEl.textContent = "Eroare la optimizarea imaginii.";
+            }
+          });
+        });
+
+        sectionsContainer.querySelectorAll(".btn-del-sec-img").forEach(btn => {
+          btn.addEventListener("click", (e) => {
+            const idx = e.target.dataset.idx;
+            sections[idx].imageUrl = undefined;
+            sections[idx].imageCaption = undefined;
+            renderSections();
+          });
+        });
+
         sectionsContainer.querySelectorAll(".btn-del-sec").forEach(b => {
           b.addEventListener("click", (e) => {
             sections.splice(e.target.dataset.idx, 1);
@@ -1049,6 +1141,7 @@
 
       // 7. Live Preview
       const articleTitle = document.getElementById("article-title");
+      const articleAuthor = document.getElementById("article-author");
       const articleExcerpt = document.getElementById("article-excerpt");
       const articleMinutes = document.getElementById("article-minutes");
 
@@ -1063,8 +1156,9 @@
       function updateLivePreview() {
         const cObj = AppStore.getCountyObj(formCounty);
         const mins = articleMinutes.value || 5;
+        const author = articleAuthor ? articleAuthor.value.trim() : "";
 
-        previewMeta.textContent = `${cObj ? cObj.name : formCounty} · ${mins} min`;
+        previewMeta.textContent = `${cObj ? cObj.name : formCounty} · ${mins} min${author ? ` · ✍️ ${author}` : ""}`;
         previewTitle.textContent = articleTitle.value || "Titlul articolului va apărea aici";
         previewExcerpt.textContent = articleExcerpt.value || "Rezumatul articolului va apărea aici...";
         previewReadTime.textContent = `Citește · ${mins} min`;
@@ -1082,6 +1176,7 @@
       }
 
       articleTitle.addEventListener("input", updateLivePreview);
+      if (articleAuthor) articleAuthor.addEventListener("input", updateLivePreview);
       articleExcerpt.addEventListener("input", updateLivePreview);
       articleMinutes.addEventListener("input", updateLivePreview);
 
@@ -1128,12 +1223,14 @@
           .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "articol");
 
         const topicLabel = window.ARTICLE_TOPICS.find(t => t.slug === formTopic)?.label || "Articol";
+        const authorVal = (articleAuthor && articleAuthor.value.trim()) || "Redacția Drumuri bune";
 
         const newArticle = {
           slug: slug,
           topicSlug: formTopic,
           title: articleTitle.value.trim(),
           excerpt: articleExcerpt.value.trim() || articleTitle.value.trim(),
+          authorName: authorVal,
           readMinutes: Number(articleMinutes.value) || 5,
           sections: sections.filter(s => s.heading.trim() || s.body.trim()),
           tips: tips.filter(t => t.trim().length > 0),
@@ -1205,14 +1302,14 @@
                 <div>
                   <div class="flex items-center justify-between text-[11px] mb-1.5">
                     <span class="font-bold text-[var(--accent)]">${article.topicLabel || "Ghid turistic"}</span>
-                    ${article.isUgc ? `<span class="rounded-full bg-amber-100 text-amber-800 px-2 py-0.5 font-bold">✍️ UGC (Autor: ${article.authorName || "Comunitate"})</span>` : (article.isCustom ? `<span class="rounded-full bg-emerald-100 text-emerald-800 px-2 py-0.5 font-bold">Creat din Panou</span>` : `<span class="rounded-full bg-gray-100 text-gray-600 px-2 py-0.5">Implicit</span>`)}
+                    ${article.isUgc ? `<span class="rounded-full bg-amber-100 text-amber-800 px-2 py-0.5 font-bold">✍️ UGC (Autor: ${article.authorName || "Comunitate"})</span>` : (article.isCustom ? `<span class="rounded-full bg-emerald-100 text-emerald-800 px-2 py-0.5 font-bold">${article.authorName ? `✍️ ${article.authorName}` : "Creat din Panou"}</span>` : `<span class="rounded-full bg-gray-100 text-gray-600 px-2 py-0.5">Implicit</span>`)}
                   </div>
                   <h4 class="font-bold text-base text-[var(--foreground)] line-clamp-2">${article.title}</h4>
                   <p class="mt-1 text-xs text-[var(--muted-foreground)] line-clamp-2">${article.excerpt}</p>
                 </div>
 
                 <div class="mt-4 pt-3 border-t border-[var(--border)] flex items-center justify-between">
-                  <span class="text-xs text-[var(--muted-foreground)]">🕒 ${article.readMinutes} min</span>
+                  <span class="text-xs text-[var(--muted-foreground)]">🕒 ${article.readMinutes} min${article.authorName ? ` · ✍️ ${article.authorName}` : ""}</span>
                   <div class="flex items-center gap-2">
                     ${article.isCustom ? `<button data-c="${countySlug}" data-s="${article.slug}" class="btn-lib-del text-xs text-red-600 hover:underline cursor-pointer">Șterge</button>` : ""}
                     <a href="articol.html?judet=${countySlug}&slug=${article.slug}" class="rounded-md bg-[var(--secondary)] px-2.5 py-1 text-xs font-semibold hover:bg-[var(--secondary)]/80">Citește →</a>

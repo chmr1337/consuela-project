@@ -489,9 +489,29 @@
               <button id="ugc-add-section-btn" type="button" class="text-xs font-semibold text-[var(--primary)] hover:underline cursor-pointer">+ Adaugă secțiune</button>
             </div>
             <div id="ugc-sections-container" class="space-y-3">
-              <div class="ugc-sec-row rounded-lg border border-[var(--border)] bg-[var(--secondary)]/20 p-3 space-y-2">
+              <div class="ugc-sec-row rounded-lg border border-[var(--border)] bg-[var(--secondary)]/20 p-3 space-y-2 relative">
                 <input type="text" class="ugc-sec-head w-full rounded-md border border-[var(--input)] bg-white px-2.5 py-1.5 text-xs sm:text-sm font-semibold outline-none" value="Ce trebuie să știi și cum ajungi" placeholder="Subtitlu secțiune..." required />
                 <textarea rows="3" class="ugc-sec-body w-full rounded-md border border-[var(--input)] bg-white px-2.5 py-1.5 text-xs sm:text-sm outline-none" placeholder="Descrie experiența, atmosfera, reperele turistice..." required></textarea>
+
+                <!-- Foto în corpul secțiunii -->
+                <div class="rounded-md border border-dashed border-[var(--border)] bg-white p-2.5 space-y-1.5">
+                  <div class="flex items-center justify-between text-[11px]">
+                    <span class="font-semibold text-[var(--foreground)]">🖼️ Foto pentru această secțiune (opțional):</span>
+                    <button type="button" class="ugc-sec-del-img hidden text-red-600 hover:underline cursor-pointer">Șterge foto</button>
+                  </div>
+                  <div class="flex flex-col sm:flex-row gap-2">
+                    <input type="text" class="ugc-sec-img-url flex-1 rounded-md border border-[var(--input)] bg-white px-2 py-1 text-xs outline-none" placeholder="Lipește URL imagine sau apasă Încarcă" />
+                    <label class="inline-flex shrink-0 cursor-pointer items-center justify-center gap-1 rounded-md border border-[var(--border)] bg-[var(--secondary)] px-2.5 py-1 text-xs font-semibold hover:bg-[var(--secondary)]/80 text-[var(--foreground)]">
+                      📁 Încarcă foto
+                      <input type="file" class="ugc-sec-img-file sr-only" accept="image/*" />
+                    </label>
+                  </div>
+                  <input type="text" class="ugc-sec-img-caption w-full rounded-md border border-[var(--input)] bg-white px-2 py-1 text-[11px] outline-none" placeholder="Descriere / legendă foto (opțional)" />
+                  <div class="ugc-sec-status text-[10px] text-[var(--muted-foreground)]"></div>
+                  <div class="ugc-sec-preview-wrap hidden mt-1 h-24 w-full max-w-xs rounded overflow-hidden border border-[var(--border)]">
+                    <img src="" alt="" class="ugc-sec-preview-img h-full w-full object-cover" referrerpolicy="no-referrer" />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -631,17 +651,93 @@
       imgStatus.textContent = "Imagine înlăturată.";
     };
 
+    function setupUgcSectionEvents(row) {
+      const delBtn = row.querySelector(".ugc-remove-sec");
+      if (delBtn) delBtn.onclick = () => row.remove();
+
+      const imgInput = row.querySelector(".ugc-sec-img-url");
+      const fileInput = row.querySelector(".ugc-sec-img-file");
+      const previewWrap = row.querySelector(".ugc-sec-preview-wrap");
+      const previewImg = row.querySelector(".ugc-sec-preview-img");
+      const delImgBtn = row.querySelector(".ugc-sec-del-img");
+      const statusEl = row.querySelector(".ugc-sec-status");
+
+      function updatePreview(url) {
+        if (url && url.trim()) {
+          previewImg.src = url.trim();
+          previewWrap.classList.remove("hidden");
+          if (delImgBtn) delImgBtn.classList.remove("hidden");
+        } else {
+          previewImg.src = "";
+          previewWrap.classList.add("hidden");
+          if (delImgBtn) delImgBtn.classList.add("hidden");
+        }
+      }
+
+      if (imgInput) {
+        imgInput.oninput = () => updatePreview(imgInput.value);
+      }
+
+      if (delImgBtn) {
+        delImgBtn.onclick = () => {
+          if (imgInput) imgInput.value = "";
+          updatePreview("");
+          if (statusEl) statusEl.textContent = "";
+        };
+      }
+
+      if (fileInput) {
+        fileInput.onchange = async () => {
+          const file = fileInput.files[0];
+          fileInput.value = "";
+          if (!file) return;
+          if (statusEl) statusEl.textContent = `Se optimizează „${file.name}”...`;
+          try {
+            const dataUrl = await window.compressAndReadImage(file);
+            if (imgInput) imgInput.value = dataUrl;
+            updatePreview(dataUrl);
+            if (statusEl) statusEl.textContent = `✓ Foto încărcată`;
+          } catch (err) {
+            if (statusEl) statusEl.textContent = "Eroare la optimizarea foto.";
+          }
+        };
+      }
+    }
+
+    // Attach to initial rows
+    secContainer.querySelectorAll(".ugc-sec-row").forEach(setupUgcSectionEvents);
+
     // Add section
     addSecBtn.onclick = () => {
       const row = document.createElement("div");
       row.className = "ugc-sec-row rounded-lg border border-[var(--border)] bg-[var(--secondary)]/20 p-3 space-y-2 relative";
       row.innerHTML = `
-        <button type="button" class="ugc-remove-sec absolute top-2 right-2 text-xs text-red-600 hover:underline">Șterge</button>
+        <button type="button" class="ugc-remove-sec absolute top-2 right-2 text-xs text-red-600 hover:underline cursor-pointer">✕ Șterge</button>
         <input type="text" class="ugc-sec-head w-full rounded-md border border-[var(--input)] bg-white px-2.5 py-1.5 text-xs sm:text-sm font-semibold outline-none" placeholder="Subtitlu secțiune..." required />
         <textarea rows="3" class="ugc-sec-body w-full rounded-md border border-[var(--input)] bg-white px-2.5 py-1.5 text-xs sm:text-sm outline-none" placeholder="Conținut secțiune..." required></textarea>
+
+        <!-- Foto în corpul secțiunii -->
+        <div class="rounded-md border border-dashed border-[var(--border)] bg-white p-2.5 space-y-1.5">
+          <div class="flex items-center justify-between text-[11px]">
+            <span class="font-semibold text-[var(--foreground)]">🖼️ Foto pentru această secțiune (opțional):</span>
+            <button type="button" class="ugc-sec-del-img hidden text-red-600 hover:underline cursor-pointer">Șterge foto</button>
+          </div>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <input type="text" class="ugc-sec-img-url flex-1 rounded-md border border-[var(--input)] bg-white px-2 py-1 text-xs outline-none" placeholder="Lipește URL imagine sau apasă Încarcă" />
+            <label class="inline-flex shrink-0 cursor-pointer items-center justify-center gap-1 rounded-md border border-[var(--border)] bg-[var(--secondary)] px-2.5 py-1 text-xs font-semibold hover:bg-[var(--secondary)]/80 text-[var(--foreground)]">
+              📁 Încarcă foto
+              <input type="file" class="ugc-sec-img-file sr-only" accept="image/*" />
+            </label>
+          </div>
+          <input type="text" class="ugc-sec-img-caption w-full rounded-md border border-[var(--input)] bg-white px-2 py-1 text-[11px] outline-none" placeholder="Descriere / legendă foto (opțional)" />
+          <div class="ugc-sec-status text-[10px] text-[var(--muted-foreground)]"></div>
+          <div class="ugc-sec-preview-wrap hidden mt-1 h-24 w-full max-w-xs rounded overflow-hidden border border-[var(--border)]">
+            <img src="" alt="" class="ugc-sec-preview-img h-full w-full object-cover" referrerpolicy="no-referrer" />
+          </div>
+        </div>
       `;
       secContainer.appendChild(row);
-      row.querySelector(".ugc-remove-sec").onclick = () => row.remove();
+      setupUgcSectionEvents(row);
     };
 
     // Handle Form Submit
@@ -660,9 +756,18 @@
 
       const sections = [];
       secContainer.querySelectorAll(".ugc-sec-row").forEach((row) => {
-        const h = row.querySelector(".ugc-sec-head").value.trim();
-        const b = row.querySelector(".ugc-sec-body").value.trim();
-        if (h || b) sections.push({ heading: h, body: b });
+        const h = row.querySelector(".ugc-sec-head")?.value.trim() || "";
+        const b = row.querySelector(".ugc-sec-body")?.value.trim() || "";
+        const img = row.querySelector(".ugc-sec-img-url")?.value.trim() || undefined;
+        const cap = row.querySelector(".ugc-sec-img-caption")?.value.trim() || undefined;
+        if (h || b || img) {
+          sections.push({
+            heading: h,
+            body: b,
+            imageUrl: img,
+            imageCaption: cap
+          });
+        }
       });
 
       const tips = tipVal ? [tipVal] : [];
