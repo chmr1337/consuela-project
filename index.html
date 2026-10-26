@@ -409,27 +409,10 @@
 
       function renderCard() {
         const allCreated = AppStore.getAllArticles();
-        const pendingCount = typeof AppStore.getPendingUgcCount === "function" ? AppStore.getPendingUgcCount() : 0;
-
-        const pendingBanner = pendingCount > 0 ? `
-          <div class="mb-5 rounded-xl border border-amber-500/40 bg-amber-500/10 p-3.5 sm:p-4 text-xs sm:text-sm text-amber-900 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-xs">
-            <div class="flex items-center gap-2.5">
-              <span class="text-xl shrink-0">🛡️</span>
-              <div>
-                <p class="font-bold">Ai ${pendingCount} articol(e) propus(e) în așteptare de verificare!</p>
-                <p class="text-xs text-amber-800">Aprobă propunerile din Centrul de Control (parola: Apple) pentru a le publica pe site.</p>
-              </div>
-            </div>
-            <a href="panou.html" class="inline-flex items-center justify-center gap-1 shrink-0 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs px-3.5 py-1.5 shadow-xs transition-all">
-              Deschide Panoul →
-            </a>
-          </div>
-        ` : "";
 
         if (!activeCounty || activeCounty === "all") {
           if (allCreated.length > 0) {
             cardContainer.innerHTML = `
-              ${pendingBanner}
               <div class="space-y-4">
                 <div class="flex items-center justify-between border-b border-[var(--border)] pb-3">
                   <div>
@@ -472,7 +455,6 @@
           }
 
           cardContainer.innerHTML = `
-            ${pendingBanner}
             <div class="py-8 text-center">
               <span class="text-3xl">🧭</span>
               <h3 class="mt-2 text-lg font-bold text-[var(--foreground)]">Alege un județ de pe hartă sau din listă</h3>
@@ -495,7 +477,6 @@
         const articles = AppStore.getCountyArticles(activeCounty);
 
         cardContainer.innerHTML = `
-          ${pendingBanner}
           <div class="flex flex-wrap items-baseline justify-between gap-3 border-b border-[var(--border)] pb-4">
             <div>
               <div class="flex items-center gap-2">

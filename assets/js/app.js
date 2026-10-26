@@ -814,9 +814,6 @@
               <a href="despre.html" class="rounded-md px-2 py-1 sm:px-3 sm:py-1.5 transition-colors whitespace-nowrap ${
                 activePage === "despre" ? "bg-[var(--secondary)] font-bold text-[var(--primary)]" : "text-[var(--muted-foreground)] hover:bg-[var(--secondary)]"
               }">Despre</a>
-              <a href="panou.html" title="Centru de Control & Moderare (Acces protejat cu parolă)" class="rounded-md px-2 py-1 sm:px-2.5 sm:py-1.5 transition-colors whitespace-nowrap text-amber-900 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 font-semibold ${
-                activePage === "panou" ? "ring-2 ring-[var(--primary)]" : ""
-              }">🔒 <span class="hidden sm:inline">Centru de </span>Control</a>
             </nav>
 
             <!-- UGC Button: Submit article -->
