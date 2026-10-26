@@ -53,6 +53,12 @@ h1, h2, h3, h4, .font-display {
   outline: none;
 }
 
+.county-path[data-has-articles="true"] {
+  fill: #3b7d52;
+  stroke: #ffffff;
+  stroke-width: 1.6;
+}
+
 .county-path:hover,
 .county-path:focus-visible {
   fill: var(--map-hover);

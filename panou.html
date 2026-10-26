@@ -93,7 +93,7 @@
         </div>
 
         <!-- Navigation Tabs -->
-        <div class="mt-6 flex flex-wrap gap-2 border-b border-[var(--border)] pb-1">
+        <div class="mt-6 flex items-center gap-2 border-b border-[var(--border)] pb-1 overflow-x-auto no-scrollbar">
           <button id="tab-btn-ugc" class="tab-btn flex items-center gap-2 rounded-t-lg px-4 py-2 text-sm font-semibold border-b-2 border-[var(--primary)] bg-[var(--background)] text-[var(--primary)] cursor-pointer">
             <span>🛡️ Moderare UGC</span>
             <span id="ugc-pending-badge" class="rounded-full bg-amber-500 px-2 py-0.5 text-xs text-white font-bold">0</span>
@@ -565,6 +565,11 @@
           const pendingCount = allUgc.filter(s => s.status === "pending").length;
           const approvedCount = allUgc.filter(s => s.status === "approved").length;
           const deniedCount = allUgc.filter(s => s.status === "denied").length;
+
+          // If no pending articles but approved/denied exist, show all articles by default so list isn't empty
+          if (ugcActiveFilter === "pending" && pendingCount === 0 && allUgc.length > 0) {
+            ugcActiveFilter = "all";
+          }
 
           // Update counter numbers in boxes and filter pills
           document.getElementById("ugc-count-pending-box").textContent = pendingCount;

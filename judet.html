@@ -23,7 +23,7 @@
 <body class="min-h-screen flex flex-col justify-between">
   <div id="site-header"></div>
 
-  <main class="flex-1 mx-auto w-full max-w-4xl px-6 py-10">
+  <main class="flex-1 mx-auto w-full max-w-4xl px-4 py-6 sm:px-6 sm:py-10">
     <!-- Breadcrumb -->
     <nav class="flex items-center gap-2 text-xs font-medium text-[var(--muted-foreground)]">
       <a href="index.html" class="hover:text-[var(--primary)]">Harta</a>
@@ -123,26 +123,29 @@
         document.getElementById("articles-count-badge").textContent = `${articles.length} articole publicate`;
 
         const grid = document.getElementById("county-articles-grid");
-        grid.innerHTML = window.ARTICLE_TOPICS.map(topic => {
-          const art = articles.find(a => a.slug === topic.slug);
-          if (!art) {
-            return `
-              <div class="flex flex-col justify-between rounded-xl border border-dashed border-[var(--border)] bg-[var(--secondary)]/30 p-5">
-                <div>
-                  <span class="text-xs font-bold uppercase tracking-wide text-[var(--accent)]">${topic.label}</span>
-                  <p class="mt-2 text-xs text-[var(--muted-foreground)]">${topic.blurb}</p>
-                  <p class="mt-3 text-xs font-semibold uppercase text-[var(--muted-foreground)]">În pregătire</p>
-                </div>
-              </div>
-            `;
-          }
 
-          const cardImg = art.imageUrl || (typeof window.getDefaultArticleImage === "function" ? window.getDefaultArticleImage(art.slug) : "https://images.unsplash.com/photo-1549880338-65ddcdfd017b?q=80&w=600&auto=format&fit=crop");
+        if (articles.length === 0) {
+          grid.innerHTML = `
+            <div class="col-span-full rounded-xl border border-dashed border-[var(--border)] bg-[var(--secondary)]/30 p-8 text-center">
+              <span class="text-3xl">✍️</span>
+              <h3 class="mt-2 text-base sm:text-lg font-bold text-[var(--foreground)]">Nu există încă articole pentru județul ${name}</h3>
+              <p class="mt-1 text-xs sm:text-sm text-[var(--muted-foreground)]">Fii primul care propune o recomandare, un monument istoric sau un traseu din această zonă.</p>
+              <button type="button" onclick="window.openUgcModal('${slug}')" class="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-4 py-2 text-xs sm:text-sm font-semibold text-white shadow-xs hover:bg-[var(--primary-hover)] cursor-pointer">
+                <span>✍️ Propune primul articol</span>
+              </button>
+            </div>
+          `;
+          return;
+        }
+
+        grid.innerHTML = articles.map(art => {
+          const cardImg = art.imageUrl || (typeof window.getDefaultArticleImage === "function" ? window.getDefaultArticleImage(art.topicSlug || art.slug) : "https://images.unsplash.com/photo-1549880338-65ddcdfd017b?q=80&w=600&auto=format&fit=crop");
           return `
             <a href="articol.html?judet=${slug}&slug=${art.slug}" class="group flex flex-col justify-between overflow-hidden rounded-xl border border-[var(--border)] bg-white shadow-xs transition-all hover:border-[var(--primary)] hover:shadow-md text-decoration-none">
               <div class="relative h-44 w-full overflow-hidden bg-[var(--secondary)]">
                 <img src="${cardImg}" alt="${art.title}" class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy" referrerpolicy="no-referrer" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1549880338-65ddcdfd017b?q=80&w=600&auto=format&fit=crop';" />
-                <span class="absolute top-2.5 left-2.5 rounded-md bg-black/60 px-2.5 py-0.5 text-[10px] font-bold uppercase text-white tracking-wider backdrop-blur-xs">${topic.label}</span>
+                <span class="absolute top-2.5 left-2.5 rounded-md bg-black/60 px-2.5 py-0.5 text-[10px] font-bold uppercase text-white tracking-wider backdrop-blur-xs">${art.topicLabel || "Ghid"}</span>
+                ${art.isUgc ? `<span class="absolute top-2.5 right-2.5 rounded bg-amber-500 text-white px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">UGC</span>` : ""}
               </div>
               <div class="p-5 flex-1 flex flex-col justify-between">
                 <div>
@@ -156,27 +159,8 @@
               </div>
             </a>
           `;
-        }).join("") + articles.filter(a => !window.ARTICLE_TOPICS.some(t => t.slug === a.slug)).map(cArt => {
-          const customImg = cArt.imageUrl || (typeof window.getDefaultArticleImage === "function" ? window.getDefaultArticleImage(cArt.slug) : "https://images.unsplash.com/photo-1584646098378-0874589d76b1?q=80&w=600&auto=format&fit=crop");
-          return `
-          <a href="articol.html?judet=${slug}&slug=${cArt.slug}" class="group flex flex-col justify-between overflow-hidden rounded-xl border border-emerald-500/30 bg-white shadow-xs transition-all hover:border-emerald-500 hover:shadow-md text-decoration-none">
-            <div class="relative h-44 w-full overflow-hidden bg-emerald-50">
-              <img src="${customImg}" alt="${cArt.title}" class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy" referrerpolicy="no-referrer" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1584646098378-0874589d76b1?q=80&w=600&auto=format&fit=crop';" />
-              <span class="absolute top-2.5 left-2.5 rounded-md bg-emerald-700/80 px-2.5 py-0.5 text-[10px] font-bold uppercase text-white tracking-wider backdrop-blur-xs">${cArt.topicLabel || "Special"}</span>
-            </div>
-            <div class="p-5 flex-1 flex flex-col justify-between">
-              <div>
-                <h3 class="text-base font-bold text-[var(--foreground)] group-hover:text-emerald-700 transition-colors line-clamp-2">${cArt.title}</h3>
-                <p class="mt-2 text-xs leading-relaxed text-[var(--muted-foreground)] line-clamp-3">${cArt.excerpt}</p>
-              </div>
-              <div class="mt-4 flex items-center justify-between border-t border-[var(--border)] pt-3 text-xs font-medium text-emerald-700">
-                <span class="text-[var(--muted-foreground)]">🕒 ${cArt.readMinutes} min lectură</span>
-                <span class="font-semibold">Citește →</span>
-              </div>
-            </div>
-          </a>
-        `;
         }).join("");
+      }
       }
 
       window.addEventListener("discover-romania-articles-updated", renderArticles);
