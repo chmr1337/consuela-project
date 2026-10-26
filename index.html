@@ -70,7 +70,7 @@
         <div class="flex items-center justify-between pb-2 border-b border-[var(--border)]/60">
           <div class="flex items-center gap-1.5">
             <h2 id="county-list-title" class="text-sm sm:text-base font-bold text-[var(--foreground)]">Județe (42)</h2>
-            <span class="text-[10px] text-[var(--muted-foreground)] bg-[var(--secondary)] px-1.5 py-0.5 rounded font-medium">derulează (5 pe ecran)</span>
+            <span id="county-list-hint" class="text-[10px] sm:text-xs text-[var(--muted-foreground)] bg-[var(--secondary)] px-2 py-0.5 rounded-full font-medium">↕ 5 afișate · derulează</span>
           </div>
           <a href="sectoare.html" class="text-xs text-[var(--primary)] font-semibold underline-offset-2 hover:underline">Sectoare →</a>
         </div>
@@ -85,8 +85,8 @@
         </div>
 
         <!-- Scrollable container: EXACTLY 5 items visible on mobile, scrollable -->
-        <div class="relative overflow-hidden rounded-md">
-          <ul id="county-list" class="max-h-[206px] lg:max-h-[calc(100vh-240px)] space-y-1 overflow-y-auto overscroll-contain pr-1">
+        <div class="relative rounded-lg border border-[var(--border)]/70 bg-[var(--secondary)]/15 p-1">
+          <ul id="county-list" class="h-[206px] lg:h-auto lg:max-h-[calc(100vh-250px)] space-y-1 overflow-y-auto overscroll-contain pr-1">
             <!-- Rendered dynamically -->
           </ul>
         </div>
@@ -213,7 +213,7 @@
           });
 
           path.addEventListener("click", () => {
-            selectCounty(slug, true);
+            selectCounty(slug, false);
           });
 
           // Touch events for mobile screens
@@ -227,7 +227,7 @@
           path.addEventListener("touchend", (e) => {
             if (!touchMoved) {
               e.preventDefault();
-              selectCounty(slug, true);
+              selectCounty(slug, false);
             }
           });
         });
@@ -296,12 +296,13 @@
             <li>
               <button
                 data-slug="${c.slug}"
+                data-has-art="${hasArt}"
                 class="county-item-btn flex w-full h-[38px] items-center justify-between rounded-md px-2.5 text-left text-xs sm:text-sm transition-colors cursor-pointer ${
                   isSelected ? "bg-[var(--primary)] font-semibold text-white shadow-xs" : (hasArt ? "bg-emerald-50/70 border border-emerald-500/30 text-[var(--foreground)] hover:bg-emerald-100/70" : "text-[var(--foreground)] hover:bg-[var(--secondary)]")
                 }"
               >
                 <span class="truncate font-medium">${c.name}</span>
-                ${hasArt ? `<span class="ml-1 shrink-0 text-[10px] font-bold ${isSelected ? "text-white/90" : "text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded"}">● Articole</span>` : ""}
+                ${hasArt ? `<span class="county-art-badge ml-1 shrink-0 text-[10px] font-bold ${isSelected ? "text-white/90" : "text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded"}">● Articole</span>` : ""}
               </button>
             </li>
           `;
@@ -312,20 +313,53 @@
             selectCounty(btn.getAttribute("data-slug"), true);
           });
         });
+
+        if (activeCounty) {
+          updateCountyListSelection(activeCounty);
+        }
+      }
+
+      function updateCountyListSelection(slug) {
+        countyList.querySelectorAll(".county-item-btn").forEach(btn => {
+          const btnSlug = btn.getAttribute("data-slug");
+          const isSelected = btnSlug === slug;
+          const hasArt = btn.getAttribute("data-has-art") === "true";
+
+          btn.className = `county-item-btn flex w-full h-[38px] items-center justify-between rounded-md px-2.5 text-left text-xs sm:text-sm transition-colors cursor-pointer ${
+            isSelected
+              ? "bg-[var(--primary)] font-semibold text-white shadow-xs"
+              : (hasArt ? "bg-emerald-50/70 border border-emerald-500/30 text-[var(--foreground)] hover:bg-emerald-100/70" : "text-[var(--foreground)] hover:bg-[var(--secondary)]")
+          }`;
+
+          const badge = btn.querySelector(".county-art-badge");
+          if (badge) {
+            badge.className = `county-art-badge ml-1 shrink-0 text-[10px] font-bold ${
+              isSelected ? "text-white/90" : "text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded"
+            }`;
+          }
+        });
+
+        // Smoothly scroll active item into view inside the list container without moving the browser window
+        const activeBtn = countyList.querySelector(`[data-slug="${slug}"]`);
+        if (activeBtn) {
+          const cTop = countyList.scrollTop;
+          const cHeight = countyList.clientHeight;
+          const bTop = activeBtn.offsetTop - countyList.offsetTop;
+          const bHeight = activeBtn.offsetHeight;
+          if (bTop < cTop) {
+            countyList.scrollTo({ top: bTop, behavior: "smooth" });
+          } else if (bTop + bHeight > cTop + cHeight) {
+            countyList.scrollTo({ top: bTop + bHeight - cHeight, behavior: "smooth" });
+          }
+        }
       }
 
       // 4. Select a County & Render Card
       function selectCounty(slug, shouldScroll = false) {
         activeCounty = slug;
-        renderCountyList();
+        updateCountyListSelection(slug);
         updateMapHighlights();
         renderCard();
-
-        // Auto-scroll selected item into view inside the scrollable county list
-        const activeBtn = countyList.querySelector(`[data-slug="${slug}"]`);
-        if (activeBtn) {
-          activeBtn.scrollIntoView({ block: "nearest", behavior: "smooth" });
-        }
 
         if (typeof gtag === "function") {
           const sec = AppStore.getSectorByCounty(slug);
@@ -472,7 +506,6 @@
             `}
           </div>
         `;
-      }
       }
 
       // 5. Render Recommended Random Articles

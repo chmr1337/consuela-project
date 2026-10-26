@@ -93,6 +93,27 @@ h1, h2, h3, h4, .font-display {
   scrollbar-width: none;
 }
 
+/* County List - 5 items scrollable on mobile */
+#county-list {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+#county-list::-webkit-scrollbar {
+  width: 5px;
+}
+#county-list::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 4px;
+}
+#county-list::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+#county-list::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+}
+
 /* Helpers */
 .line-clamp-2 {
   display: -webkit-box;
