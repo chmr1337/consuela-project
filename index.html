@@ -52,8 +52,13 @@
         </div>
       </div>
 
-      <!-- 2. Sector Navigation Filter Bar: Second on mobile (order-2), top bar on desktop (lg:col-span-2 lg:row-start-1) -->
-      <section id="sector-filter-section" class="order-2 lg:order-none lg:col-span-2 lg:row-start-1 w-full rounded-xl border border-[var(--border)] bg-gradient-to-r from-[var(--secondary)]/60 via-[var(--background)] to-[var(--secondary)]/60 px-3 sm:px-4 py-2 sm:py-2.5 shadow-xs">
+      <!-- 2. Articole & Detalii județ selectat: Second on mobile (order-2) - directly under the map! Right column row 3 on desktop (lg:col-start-2 lg:row-start-3) -->
+      <section id="selected-county-card" class="order-2 lg:order-none lg:col-start-2 lg:row-start-3 w-full rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 sm:p-6 shadow-xs">
+        <!-- Rendered dynamically -->
+      </section>
+
+      <!-- 3. Sector Navigation Filter Bar: Third on mobile (order-3), top bar on desktop (lg:col-span-2 lg:row-start-1) -->
+      <section id="sector-filter-section" class="order-3 lg:order-none lg:col-span-2 lg:row-start-1 w-full rounded-xl border border-[var(--border)] bg-gradient-to-r from-[var(--secondary)]/60 via-[var(--background)] to-[var(--secondary)]/60 px-3 sm:px-4 py-2 sm:py-2.5 shadow-xs">
         <div class="flex items-center justify-between gap-2">
           <div class="flex items-center gap-1.5 shrink-0">
             <svg class="h-3.5 w-3.5 text-[var(--primary)] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v20m10-10H2m18.07-7.07l-1.41 1.41M5.34 18.66l-1.41 1.41M18.66 18.66l-1.41-1.41M5.34 5.34l-1.41 1.41"/></svg>
@@ -65,8 +70,8 @@
         </div>
       </section>
 
-      <!-- 3. Lista de județe: Third on mobile (order-3), left column on desktop (lg:col-start-1 lg:row-start-2 lg:row-span-2) -->
-      <aside id="county-list-aside" class="order-3 lg:order-none lg:col-start-1 lg:row-start-2 lg:row-span-2 lg:sticky lg:top-20 flex flex-col w-full rounded-xl border border-[var(--border)] bg-[var(--card)] p-3 sm:p-4 shadow-xs">
+      <!-- 4. Lista de județe: Fourth on mobile (order-4), left column on desktop (lg:col-start-1 lg:row-start-2 lg:row-span-2) -->
+      <aside id="county-list-aside" class="order-4 lg:order-none lg:col-start-1 lg:row-start-2 lg:row-span-2 lg:sticky lg:top-20 flex flex-col w-full rounded-xl border border-[var(--border)] bg-[var(--card)] p-3 sm:p-4 shadow-xs">
         <div class="flex items-center justify-between pb-2 border-b border-[var(--border)]/60">
           <div class="flex items-center gap-1.5">
             <h2 id="county-list-title" class="text-sm sm:text-base font-bold text-[var(--foreground)]">Județe (42)</h2>
@@ -91,11 +96,6 @@
           </ul>
         </div>
       </aside>
-
-      <!-- 4. Detalii județ selectat: Fourth on mobile (order-4), right column row 3 on desktop (lg:col-start-2 lg:row-start-3) -->
-      <section id="selected-county-card" class="order-4 lg:order-none lg:col-start-2 lg:row-start-3 w-full rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 sm:p-6 shadow-xs">
-        <!-- Rendered dynamically -->
-      </section>
 
     </div>
 
@@ -137,8 +137,7 @@
       renderSiteFooter();
 
       let activeSector = "all";
-      const initialWithArts = AppStore.countiesWithArticles();
-      let activeCounty = getParam("county") || (initialWithArts.length > 0 ? initialWithArts[0] : null);
+      let activeCounty = getParam("county") || null;
       let hoveredCounty = null;
       let searchQuery = "";
 
@@ -265,6 +264,8 @@
       // 3. Render County List (Compact & Scrollable, prioritizing counties with articles)
       function renderCountyList() {
         const withArticles = AppStore.countiesWithArticles();
+        const allCreated = AppStore.getAllArticles();
+
         const filtered = window.ROMANIA_COUNTIES.filter(c => {
           if (activeSector !== "all") {
             const sec = AppStore.getSectorByCounty(c.slug);
@@ -288,9 +289,29 @@
         const activeSecObj = window.ROMANIA_SECTORS.find(s => s.id === activeSector);
         listTitle.textContent = activeSector === "all" ? `Județe (${filtered.length})` : `${activeSecObj.name} (${filtered.length})`;
 
-        countyList.innerHTML = filtered.map(c => {
+        const isAllSelected = !activeCounty || activeCounty === "all";
+        const allBtnHtml = (activeSector === "all" && !searchQuery.trim()) ? `
+          <li>
+            <button
+              data-slug="all"
+              class="county-item-btn flex w-full h-[38px] items-center justify-between rounded-md px-2.5 text-left text-xs sm:text-sm transition-colors cursor-pointer ${
+                isAllSelected
+                  ? "bg-[var(--primary)] font-semibold text-white shadow-xs"
+                  : "bg-emerald-50/80 border border-emerald-500/40 text-[var(--foreground)] hover:bg-emerald-100"
+              }"
+            >
+              <span class="truncate font-semibold">⭐ Toate articolele create</span>
+              <span class="county-art-badge ml-1 shrink-0 text-[10px] font-bold ${
+                isAllSelected ? "text-white/90" : "text-emerald-800 bg-emerald-200/80 px-1.5 py-0.5 rounded"
+              }">${allCreated.length}</span>
+            </button>
+          </li>
+        ` : "";
+
+        countyList.innerHTML = allBtnHtml + filtered.map(c => {
           const isSelected = c.slug === activeCounty;
-          const hasArt = withArticles.includes(c.slug);
+          const countyArts = AppStore.getCountyArticles(c.slug);
+          const hasArt = countyArts.length > 0;
 
           return `
             <li>
@@ -302,7 +323,7 @@
                 }"
               >
                 <span class="truncate font-medium">${c.name}</span>
-                ${hasArt ? `<span class="county-art-badge ml-1 shrink-0 text-[10px] font-bold ${isSelected ? "text-white/90" : "text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded"}">● Articole</span>` : ""}
+                ${hasArt ? `<span class="county-art-badge ml-1 shrink-0 text-[10px] font-bold ${isSelected ? "text-white/90" : "text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded"}">● ${countyArts.length} art</span>` : ""}
               </button>
             </li>
           `;
@@ -310,25 +331,25 @@
 
         countyList.querySelectorAll(".county-item-btn").forEach(btn => {
           btn.addEventListener("click", () => {
-            selectCounty(btn.getAttribute("data-slug"), true);
+            const s = btn.getAttribute("data-slug");
+            selectCounty(s === "all" ? null : s, true);
           });
         });
 
-        if (activeCounty) {
-          updateCountyListSelection(activeCounty);
-        }
+        updateCountyListSelection(activeCounty);
       }
 
       function updateCountyListSelection(slug) {
+        const isAll = !slug || slug === "all";
         countyList.querySelectorAll(".county-item-btn").forEach(btn => {
           const btnSlug = btn.getAttribute("data-slug");
-          const isSelected = btnSlug === slug;
+          const isSelected = (btnSlug === "all" && isAll) || (btnSlug === slug);
           const hasArt = btn.getAttribute("data-has-art") === "true";
 
           btn.className = `county-item-btn flex w-full h-[38px] items-center justify-between rounded-md px-2.5 text-left text-xs sm:text-sm transition-colors cursor-pointer ${
             isSelected
               ? "bg-[var(--primary)] font-semibold text-white shadow-xs"
-              : (hasArt ? "bg-emerald-50/70 border border-emerald-500/30 text-[var(--foreground)] hover:bg-emerald-100/70" : "text-[var(--foreground)] hover:bg-[var(--secondary)]")
+              : (hasArt ? "bg-emerald-50/70 border border-emerald-500/30 text-[var(--foreground)] hover:bg-emerald-100/70" : (btnSlug === "all" ? "bg-emerald-50/80 border border-emerald-500/40 text-[var(--foreground)] hover:bg-emerald-100" : "text-[var(--foreground)] hover:bg-[var(--secondary)]"))
           }`;
 
           const badge = btn.querySelector(".county-art-badge");
@@ -340,38 +361,43 @@
         });
 
         // Smoothly scroll active item into view inside the list container without moving the browser window
-        const activeBtn = countyList.querySelector(`[data-slug="${slug}"]`);
-        if (activeBtn) {
-          const cTop = countyList.scrollTop;
-          const cHeight = countyList.clientHeight;
-          const bTop = activeBtn.offsetTop - countyList.offsetTop;
-          const bHeight = activeBtn.offsetHeight;
-          if (bTop < cTop) {
-            countyList.scrollTo({ top: bTop, behavior: "smooth" });
-          } else if (bTop + bHeight > cTop + cHeight) {
-            countyList.scrollTo({ top: bTop + bHeight - cHeight, behavior: "smooth" });
+        if (slug && slug !== "all") {
+          const activeBtn = countyList.querySelector(`[data-slug="${slug}"]`);
+          if (activeBtn) {
+            const cTop = countyList.scrollTop;
+            const cHeight = countyList.clientHeight;
+            const bTop = activeBtn.offsetTop - countyList.offsetTop;
+            const bHeight = activeBtn.offsetHeight;
+            if (bTop < cTop) {
+              countyList.scrollTo({ top: bTop, behavior: "smooth" });
+            } else if (bTop + bHeight > cTop + cHeight) {
+              countyList.scrollTo({ top: bTop + bHeight - cHeight, behavior: "smooth" });
+            }
           }
         }
       }
 
       // 4. Select a County & Render Card
       function selectCounty(slug, shouldScroll = false) {
-        activeCounty = slug;
-        updateCountyListSelection(slug);
+        activeCounty = (slug === "all" || !slug) ? null : slug;
+        updateCountyListSelection(activeCounty);
         updateMapHighlights();
         renderCard();
 
         if (typeof gtag === "function") {
-          const sec = AppStore.getSectorByCounty(slug);
           gtag("event", "select_county", {
-            county: slug,
-            sector: sec ? sec.name : "România"
+            county: activeCounty || "toate",
+            sector: activeCounty ? (AppStore.getSectorByCounty(activeCounty)?.name || "România") : "România"
           });
         }
 
         // Update URL cleanly without reloading
         const url = new URL(window.location);
-        url.searchParams.set("county", slug);
+        if (activeCounty) {
+          url.searchParams.set("county", activeCounty);
+        } else {
+          url.searchParams.delete("county");
+        }
         window.history.replaceState({}, "", url);
 
         if (shouldScroll && window.innerWidth < 1024) {
@@ -382,17 +408,37 @@
       }
 
       function renderCard() {
-        if (!activeCounty) {
-          const allCreated = AppStore.getAllArticles();
+        const allCreated = AppStore.getAllArticles();
+        const pendingCount = typeof AppStore.getPendingUgcCount === "function" ? AppStore.getPendingUgcCount() : 0;
+
+        const pendingBanner = pendingCount > 0 ? `
+          <div class="mb-5 rounded-xl border border-amber-500/40 bg-amber-500/10 p-3.5 sm:p-4 text-xs sm:text-sm text-amber-900 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-xs">
+            <div class="flex items-center gap-2.5">
+              <span class="text-xl shrink-0">🛡️</span>
+              <div>
+                <p class="font-bold">Ai ${pendingCount} articol(e) propus(e) în așteptare de verificare!</p>
+                <p class="text-xs text-amber-800">Aprobă propunerile din Centrul de Control (parola: Apple) pentru a le publica pe site.</p>
+              </div>
+            </div>
+            <a href="panou.html" class="inline-flex items-center justify-center gap-1 shrink-0 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs px-3.5 py-1.5 shadow-xs transition-all">
+              Deschide Panoul →
+            </a>
+          </div>
+        ` : "";
+
+        if (!activeCounty || activeCounty === "all") {
           if (allCreated.length > 0) {
             cardContainer.innerHTML = `
+              ${pendingBanner}
               <div class="space-y-4">
                 <div class="flex items-center justify-between border-b border-[var(--border)] pb-3">
                   <div>
                     <span class="rounded-md bg-emerald-100 text-emerald-800 px-2 py-0.5 text-xs font-bold uppercase tracking-wider">Publicate Recent</span>
                     <h3 class="mt-1 text-xl sm:text-2xl font-bold text-[var(--foreground)]">Articole Turistice Create (${allCreated.length})</h3>
                   </div>
-                  <span class="text-xs text-[var(--muted-foreground)]">Atinge un articol pentru a citi</span>
+                  <button type="button" onclick="window.openUgcModal()" class="inline-flex items-center gap-1 text-xs font-semibold text-[var(--primary)] hover:underline cursor-pointer">
+                    + Adaugă articol
+                  </button>
                 </div>
                 <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   ${allCreated.map(({ countySlug, article }) => {
@@ -426,11 +472,15 @@
           }
 
           cardContainer.innerHTML = `
+            ${pendingBanner}
             <div class="py-8 text-center">
-              <svg class="mx-auto h-10 w-10 text-[var(--primary)]/60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
+              <span class="text-3xl">🧭</span>
               <h3 class="mt-2 text-lg font-bold text-[var(--foreground)]">Alege un județ de pe hartă sau din listă</h3>
               <p class="mx-auto mt-1 max-w-md text-sm text-[var(--muted-foreground)]">Atinge un județ pentru a citi recomandările de vizitat, gastronomia și traseele de drumeție.</p>
               <div class="mt-4 flex flex-wrap justify-center gap-2">
+                <button type="button" onclick="window.openUgcModal()" class="inline-flex items-center gap-1.5 rounded-md bg-[var(--primary)] px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-[var(--primary-hover)] cursor-pointer">
+                  ✍️ Propune primul articol
+                </button>
                 <a href="sectoare.html" class="inline-flex items-center gap-1.5 rounded-md border border-[var(--input)] bg-[var(--secondary)] px-4 py-2 text-xs font-semibold hover:bg-[var(--secondary)]/80">Vezi Sectoarele României</a>
               </div>
             </div>
@@ -445,17 +495,23 @@
         const articles = AppStore.getCountyArticles(activeCounty);
 
         cardContainer.innerHTML = `
+          ${pendingBanner}
           <div class="flex flex-wrap items-baseline justify-between gap-3 border-b border-[var(--border)] pb-4">
             <div>
               <div class="flex items-center gap-2">
-                <h2 class="text-3xl font-bold text-[var(--primary)]">${countyName}</h2>
+                <h2 class="text-2xl sm:text-3xl font-bold text-[var(--primary)]">${countyName}</h2>
                 ${sec ? `<span class="rounded-md bg-[var(--secondary)] px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider text-[var(--accent)]">Sector ${sec.name}</span>` : ""}
               </div>
-              ${note && note.intro ? `<p class="mt-2 text-base text-[var(--muted-foreground)]">${note.intro}</p>` : ""}
+              ${note && note.intro ? `<p class="mt-2 text-sm sm:text-base text-[var(--muted-foreground)]">${note.intro}</p>` : ""}
             </div>
 
-            <div class="flex items-center gap-2">
-              <a href="judet.html?judet=${activeCounty}" class="inline-flex items-center gap-1 text-sm font-semibold text-[var(--primary)] hover:underline">
+            <div class="flex items-center gap-3">
+              ${allCreated.length > 0 ? `
+                <button type="button" onclick="selectCounty(null, true)" class="text-xs font-semibold text-[var(--primary)] hover:underline cursor-pointer">
+                  ← Toate articolele (${allCreated.length})
+                </button>
+              ` : ""}
+              <a href="judet.html?judet=${activeCounty}" class="inline-flex items-center gap-1 text-xs sm:text-sm font-semibold text-[var(--primary)] hover:underline">
                 <span>Pagina județului →</span>
               </a>
             </div>
@@ -463,7 +519,7 @@
 
           <div class="mt-6">
             <div class="flex items-center justify-between mb-4">
-              <h3 class="text-lg font-bold text-[var(--foreground)]">Articole turistice despre ${countyName} (${articles.length})</h3>
+              <h3 class="text-base sm:text-lg font-bold text-[var(--foreground)]">Articole turistice despre ${countyName} (${articles.length})</h3>
               <button type="button" onclick="window.openUgcModal('${activeCounty}')" class="text-xs font-semibold text-[var(--primary)] hover:underline cursor-pointer">
                 + Adaugă articol
               </button>
@@ -474,10 +530,43 @@
                 <span class="text-2xl">✍️</span>
                 <p class="mt-2 text-sm font-semibold text-[var(--foreground)]">Nu există încă articole scrise pentru ${countyName}.</p>
                 <p class="mt-1 text-xs text-[var(--muted-foreground)]">Fii primul care propune o recomandare sau un traseu din această zonă!</p>
-                <button type="button" onclick="window.openUgcModal('${activeCounty}')" class="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-[var(--primary-hover)] cursor-pointer">
-                  <span>✍️ Propune primul articol pentru ${countyName}</span>
-                </button>
+                <div class="mt-4 flex flex-wrap justify-center gap-2">
+                  <button type="button" onclick="window.openUgcModal('${activeCounty}')" class="inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-[var(--primary-hover)] cursor-pointer">
+                    <span>✍️ Propune primul articol pentru ${countyName}</span>
+                  </button>
+                  ${allCreated.length > 0 ? `
+                    <button type="button" onclick="selectCounty(null, true)" class="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-white px-4 py-2 text-xs font-semibold text-[var(--foreground)] hover:bg-[var(--secondary)] cursor-pointer">
+                      <span>Vezi cele ${allCreated.length} articole create →</span>
+                    </button>
+                  ` : ""}
+                </div>
               </div>
+
+              ${allCreated.length > 0 ? `
+                <div class="mt-8 border-t border-[var(--border)] pt-5">
+                  <div class="flex items-center justify-between mb-3">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-[var(--muted-foreground)]">Articole create recent din alte județe:</h4>
+                    <button type="button" onclick="selectCounty(null, true)" class="text-xs font-semibold text-[var(--primary)] hover:underline cursor-pointer">Vezi toate →</button>
+                  </div>
+                  <div class="grid gap-3 sm:grid-cols-2">
+                    ${allCreated.slice(0, 4).map(({ countySlug: cS, article: a }) => {
+                      const cO = AppStore.getCountyObj(cS);
+                      const cN = cO ? cO.name : cS;
+                      const cImg = a.imageUrl || (typeof window.getDefaultArticleImage === "function" ? window.getDefaultArticleImage(a.topicSlug || a.slug) : "https://images.unsplash.com/photo-1549880338-65ddcdfd017b?q=80&w=400&auto=format&fit=crop");
+                      return `
+                        <a href="articol.html?judet=${cS}&slug=${a.slug}" class="flex items-center gap-3 rounded-xl border border-[var(--border)] bg-white p-3 shadow-xs hover:border-[var(--primary)] hover:shadow-sm transition-all text-decoration-none">
+                          <img src="${cImg}" alt="${a.title}" class="h-16 w-16 shrink-0 rounded-lg object-cover" referrerpolicy="no-referrer" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1549880338-65ddcdfd017b?q=80&w=400&auto=format&fit=crop';" />
+                          <div class="flex-1 min-w-0">
+                            <span class="text-[10px] font-bold text-[var(--accent)] uppercase tracking-wider">📍 ${cN}</span>
+                            <h5 class="text-xs sm:text-sm font-bold text-[var(--foreground)] truncate">${a.title}</h5>
+                            <span class="text-[11px] text-[var(--muted-foreground)]">🕒 ${a.readMinutes} min${a.authorName ? ` · ✍️ ${a.authorName}` : ""}</span>
+                          </div>
+                        </a>
+                      `;
+                    }).join("")}
+                  </div>
+                </div>
+              ` : ""}
             ` : `
               <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 ${articles.map(art => {
