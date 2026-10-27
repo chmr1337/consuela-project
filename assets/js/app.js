@@ -9,17 +9,16 @@
 
   // =========================================================================
   // 🔥 CONFIGURARE GOOGLE FIREBASE FIRESTORE (Sincronizare Multi-Dispozitiv)
-  // Pentru ca articolele să fie vizibile pe toate dispozitivele (telefon, PC)
-  // și pentru toți vizitatorii, completează câmpurile de mai jos sau folosește
-  // fila „Sincronizare Cloud” din Panoul de Redactare (panou.html).
+  // Conectat automat pentru sincronizarea în timp real pe mobil, PC și vizitatori.
   // =========================================================================
   window.FIREBASE_CONFIG = window.FIREBASE_CONFIG || {
-    apiKey: "",
-    authDomain: "",
-    projectId: "",
-    storageBucket: "",
-    messagingSenderId: "",
-    appId: ""
+    apiKey: "AIzaSyCbrdK11GioakzE5PXtl9cS4RevFvPvqnA",
+    authDomain: "drumuri-bune.firebaseapp.com",
+    projectId: "drumuri-bune",
+    storageBucket: "drumuri-bune.firebasestorage.app",
+    messagingSenderId: "1093268932070",
+    appId: "1:1093268932070:web:0423a0a895675e951d0227",
+    measurementId: "G-G0FRS6ZV7B"
   };
 
   let db = null;
@@ -100,6 +99,9 @@
         }
       }, (err) => {
         console.warn("Firestore articles listener notification:", err);
+        if (err && (err.code === "permission-denied" || (err.message && err.message.includes("permission")))) {
+          console.error("⚠️ [Firebase Firestore Rules] Ai nevoie de permisiuni de citire/scriere. Intră în consola Firebase -> Firestore Database -> Rules și setează: allow read, write: if true;");
+        }
       });
     } catch (e) {
       console.error("Eroare la configurarea listener-ului de articole Firestore:", e);
@@ -127,6 +129,9 @@
         }
       }, (err) => {
         console.warn("Firestore UGC listener notification:", err);
+        if (err && (err.code === "permission-denied" || (err.message && err.message.includes("permission")))) {
+          console.error("⚠️ [Firebase Firestore Rules] Permisiuni necesare în Firebase Console -> Firestore Database -> Rules.");
+        }
       });
     } catch (e) {
       console.error("Eroare la configurarea listener-ului UGC Firestore:", e);
