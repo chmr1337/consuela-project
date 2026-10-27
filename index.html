@@ -212,7 +212,7 @@
           });
 
           path.addEventListener("click", () => {
-            selectCounty(slug, false);
+            selectCounty(slug, window.innerWidth < 1024);
           });
 
           // Touch events for mobile screens
@@ -226,7 +226,7 @@
           path.addEventListener("touchend", (e) => {
             if (!touchMoved) {
               e.preventDefault();
-              selectCounty(slug, false);
+              selectCounty(slug, true);
             }
           });
         });
