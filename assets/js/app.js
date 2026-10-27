@@ -42,6 +42,23 @@
     return null;
   }
 
+  function cleanDataForFirestore(data) {
+    if (data === null || data === undefined) return null;
+    if (Array.isArray(data)) {
+      return data.map(cleanDataForFirestore).filter((v) => v !== undefined);
+    }
+    if (typeof data === "object") {
+      const clean = {};
+      for (const [key, value] of Object.entries(data)) {
+        if (value !== undefined) {
+          clean[key] = cleanDataForFirestore(value);
+        }
+      }
+      return clean;
+    }
+    return data;
+  }
+
   function initFirebase() {
     if (typeof firebase === "undefined") {
       return false;
@@ -56,6 +73,11 @@
         firebase.initializeApp(config);
       }
       db = firebase.firestore();
+      try {
+        db.settings({ ignoreUndefinedProperties: true });
+      } catch (e) {
+        // setting already applied or not supported
+      }
       isFirestoreActive = true;
       console.log("🔥 [Drumuri bune] Conexiune activă la Google Firebase Firestore!");
 
@@ -148,14 +170,20 @@
           const cloudList = cloudGrouped[cSlug] || [];
           const exists = cloudList.some((ca) => ca.slug === art.slug);
           if (!exists) {
-            const docId = `${cSlug}__${art.slug}`;
-            db.collection("articles").doc(docId).set({
-              ...art,
-              countySlug: cSlug,
-              isCustom: true,
-              createdAt: art.createdAt || new Date().toISOString()
-            }, { merge: true }).catch((e) => console.warn("Auto-sync article error:", e));
-            count++;
+            try {
+              const docId = `${cSlug}__${art.slug}`;
+              const cleanArt = cleanDataForFirestore({
+                ...art,
+                countySlug: cSlug,
+                isCustom: true,
+                createdAt: art.createdAt || new Date().toISOString()
+              });
+              db.collection("articles").doc(docId).set(cleanArt, { merge: true })
+                .catch((e) => console.warn("Auto-sync article error:", e));
+              count++;
+            } catch (err) {
+              console.warn("Auto-sync article sync error:", err);
+            }
           }
         });
       }
@@ -172,9 +200,14 @@
     local.forEach((sub) => {
       const exists = cloudList.some((cs) => cs.id === sub.id);
       if (!exists) {
-        db.collection("ugc_submissions").doc(sub.id).set(sub, { merge: true })
-          .catch((e) => console.warn("Auto-sync UGC error:", e));
-        count++;
+        try {
+          const cleanSub = cleanDataForFirestore(sub);
+          db.collection("ugc_submissions").doc(sub.id).set(cleanSub, { merge: true })
+            .catch((e) => console.warn("Auto-sync UGC error:", e));
+          count++;
+        } catch (err) {
+          console.warn("Auto-sync UGC sync error:", err);
+        }
       }
     });
     if (count > 0) {
@@ -355,11 +388,16 @@
 
       saveCustomArticles(all, true);
 
-      // Save to Firebase Firestore
+      // Save to Firebase Firestore safely without blocking local save
       if (db && isFirestoreActive) {
-        const docId = `${countySlug}__${article.slug}`;
-        db.collection("articles").doc(docId).set(toSave, { merge: true })
-          .catch((err) => console.error("Firestore save article error:", err));
+        try {
+          const docId = `${countySlug}__${article.slug}`;
+          const cleanDoc = cleanDataForFirestore(toSave);
+          db.collection("articles").doc(docId).set(cleanDoc, { merge: true })
+            .catch((err) => console.error("Firestore save article error:", err));
+        } catch (err) {
+          console.warn("Firestore save article sync error:", err);
+        }
       }
 
       if (typeof gtag === "function") {
@@ -382,9 +420,13 @@
 
       // Delete from Firebase Firestore
       if (db && isFirestoreActive) {
-        const docId = `${countySlug}__${articleSlug}`;
-        db.collection("articles").doc(docId).delete()
-          .catch((err) => console.error("Firestore delete article error:", err));
+        try {
+          const docId = `${countySlug}__${articleSlug}`;
+          db.collection("articles").doc(docId).delete()
+            .catch((err) => console.error("Firestore delete article error:", err));
+        } catch (err) {
+          console.warn("Firestore delete article sync error:", err);
+        }
       }
 
       return true;
@@ -495,10 +537,15 @@
       all.unshift(newSubmission);
       saveUgcSubmissions(all, true);
 
-      // Save to Firebase Firestore
+      // Save to Firebase Firestore safely without blocking local save
       if (db && isFirestoreActive) {
-        db.collection("ugc_submissions").doc(id).set(newSubmission)
-          .catch((err) => console.error("Firestore submit UGC error:", err));
+        try {
+          const cleanSub = cleanDataForFirestore(newSubmission);
+          db.collection("ugc_submissions").doc(id).set(cleanSub)
+            .catch((err) => console.error("Firestore submit UGC error:", err));
+        } catch (err) {
+          console.warn("Firestore submit UGC sync error:", err);
+        }
       }
 
       if (typeof gtag === "function") {
@@ -525,10 +572,14 @@
       saveUgcSubmissions(all, true);
 
       if (db && isFirestoreActive) {
-        db.collection("ugc_submissions").doc(id).update({
-          status: "approved",
-          reviewedAt: sub.reviewedAt
-        }).catch((err) => console.error("Firestore update UGC error:", err));
+        try {
+          db.collection("ugc_submissions").doc(id).update({
+            status: "approved",
+            reviewedAt: sub.reviewedAt
+          }).catch((err) => console.error("Firestore update UGC error:", err));
+        } catch (err) {
+          console.warn("Firestore approve UGC sync error:", err);
+        }
       }
 
       // Publică articolul în magazinul public de articole
@@ -573,11 +624,15 @@
       saveUgcSubmissions(all, true);
 
       if (db && isFirestoreActive) {
-        db.collection("ugc_submissions").doc(id).update({
-          status: "denied",
-          denyReason: sub.denyReason,
-          reviewedAt: sub.reviewedAt
-        }).catch((err) => console.error("Firestore deny UGC error:", err));
+        try {
+          db.collection("ugc_submissions").doc(id).update({
+            status: "denied",
+            denyReason: sub.denyReason,
+            reviewedAt: sub.reviewedAt
+          }).catch((err) => console.error("Firestore deny UGC error:", err));
+        } catch (err) {
+          console.warn("Firestore deny UGC sync error:", err);
+        }
       }
 
       // Dacă fusese aprobat anterior, îl retragem din articolele publice
@@ -604,8 +659,12 @@
       saveUgcSubmissions(updated, true);
 
       if (db && isFirestoreActive) {
-        db.collection("ugc_submissions").doc(id).delete()
-          .catch((err) => console.error("Firestore delete UGC error:", err));
+        try {
+          db.collection("ugc_submissions").doc(id).delete()
+            .catch((err) => console.error("Firestore delete UGC error:", err));
+        } catch (err) {
+          console.warn("Firestore delete UGC sync error:", err);
+        }
       }
 
       return true;
@@ -1067,22 +1126,27 @@
 
       const tips = tipVal ? [tipVal] : [];
 
-      AppStore.submitUgcArticle({
-        countySlug,
-        topicSlug,
-        topicLabel: topicObj ? topicObj.label : "Articol",
-        title,
-        excerpt,
-        authorName,
-        authorEmail,
-        imageUrl,
-        sections,
-        tips,
-        readMinutes: 5
-      });
+      try {
+        AppStore.submitUgcArticle({
+          countySlug,
+          topicSlug,
+          topicLabel: topicObj ? topicObj.label : "Articol",
+          title,
+          excerpt,
+          authorName,
+          authorEmail,
+          imageUrl,
+          sections,
+          tips,
+          readMinutes: 5
+        });
 
-      form.classList.add("hidden");
-      successView.classList.remove("hidden");
+        form.classList.add("hidden");
+        successView.classList.remove("hidden");
+      } catch (err) {
+        console.error("UGC submit error:", err);
+        alert("Eroare la trimiterea propunerii: " + (err.message || err));
+      }
     };
   };
 

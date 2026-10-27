@@ -1375,22 +1375,27 @@
           createdAt: new Date().toISOString()
         };
 
-        AppStore.saveArticle(formCounty, newArticle);
+        try {
+          AppStore.saveArticle(formCounty, newArticle);
 
-        const alertEl = document.getElementById("success-alert");
-        const alertText = document.getElementById("success-text");
-        const alertLink = document.getElementById("success-link");
+          const alertEl = document.getElementById("success-alert");
+          const alertText = document.getElementById("success-text");
+          const alertLink = document.getElementById("success-link");
 
-        alertText.textContent = `Articolul «${newArticle.title}» a fost publicat cu succes pentru ${formCounty.toUpperCase()}!`;
-        alertLink.href = `articol.html?judet=${formCounty}&slug=${slug}`;
-        alertLink.classList.remove("hidden");
-        alertLink.classList.add("inline-flex");
-        alertEl.classList.remove("hidden");
+          alertText.textContent = `Articolul «${newArticle.title}» a fost publicat cu succes pentru ${formCounty.toUpperCase()}!`;
+          alertLink.href = `articol.html?judet=${formCounty}&slug=${slug}`;
+          alertLink.classList.remove("hidden");
+          alertLink.classList.add("inline-flex");
+          alertEl.classList.remove("hidden");
 
-        updateStats();
-        renderArticleLibrary();
-        switchTab("list");
-        window.scrollTo({ top: 0, behavior: "smooth" });
+          updateStats();
+          renderArticleLibrary();
+          switchTab("list");
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        } catch (err) {
+          console.error("Eroare la publicarea articolului:", err);
+          alert("A apărut o problemă la publicare: " + (err.message || err));
+        }
       });
 
       // 10. Library renderer
