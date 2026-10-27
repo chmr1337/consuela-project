@@ -107,6 +107,10 @@
           <button id="tab-btn-backup" class="tab-btn flex items-center gap-2 rounded-t-lg px-4 py-2 text-sm font-semibold text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/60 cursor-pointer">
             Backup & Import JSON
           </button>
+          <button id="tab-btn-cloud" class="tab-btn flex items-center gap-2 rounded-t-lg px-4 py-2 text-sm font-semibold text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/60 cursor-pointer">
+            <span>🔥 Sincronizare Cloud</span>
+            <span id="cloud-tab-dot" class="h-2 w-2 rounded-full bg-amber-500"></span>
+          </button>
         </div>
       </div>
     </section>
@@ -403,12 +407,123 @@
         </button>
       </div>
     </div>
+
+    <!-- TAB 4: CLOUD SYNC (FIREBASE FIRESTORE) -->
+    <div id="tab-cloud" class="hidden mx-auto max-w-2xl space-y-6">
+      <!-- Status Card -->
+      <div id="cloud-status-card" class="rounded-xl border p-5 sm:p-6 transition-all border-amber-500/40 bg-amber-500/10">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="flex items-start gap-3">
+            <span id="cloud-status-icon" class="text-2xl mt-0.5">🟠</span>
+            <div>
+              <h3 id="cloud-status-title" class="text-base sm:text-lg font-bold text-[var(--foreground)]">Stare: Salvare Locală (Doar pe acest calculator)</h3>
+              <p id="cloud-status-desc" class="mt-0.5 text-xs text-[var(--muted-foreground)] leading-relaxed">Pentru ca articolele să fie vizibile pe telefonul mobil și pentru alți vizitatori, conectează Google Firebase Firestore.</p>
+            </div>
+          </div>
+          <span id="cloud-status-badge-text" class="self-start sm:self-center rounded-full bg-amber-200 text-amber-900 px-3 py-1 text-xs font-bold shrink-0">Doar Local</span>
+        </div>
+      </div>
+
+      <div id="cloud-alert-msg" class="hidden rounded-lg border p-3.5 text-center text-xs sm:text-sm font-semibold"></div>
+
+      <!-- Firebase Config Setup Card -->
+      <div class="rounded-xl border border-[var(--border)] bg-white p-6 shadow-xs">
+        <div class="flex items-center justify-between">
+          <h3 class="text-base sm:text-lg font-bold text-[var(--foreground)] flex items-center gap-2">
+            <span>🔥</span>
+            <span>Configurare Conexiune Firebase</span>
+          </h3>
+          <span class="text-xs font-semibold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">100% Gratuit</span>
+        </div>
+        <p class="mt-1 text-xs text-[var(--muted-foreground)] leading-relaxed">
+          Lipește codul de configurare <code>firebaseConfig</code> generat gratuit din consola Google Firebase.
+        </p>
+
+        <form id="firebase-config-form" class="mt-4 space-y-4">
+          <div>
+            <label for="firebase-config-textarea" class="block text-xs font-bold uppercase tracking-wider text-[var(--foreground)]">
+              Cod de configurare Firebase (JSON sau snippet JavaScript):
+            </label>
+            <textarea
+              id="firebase-config-textarea"
+              rows="7"
+              placeholder='const firebaseConfig = {
+  apiKey: "AIzaSy...",
+  authDomain: "drumuri-bune.firebaseapp.com",
+  projectId: "drumuri-bune",
+  storageBucket: "drumuri-bune.appspot.com",
+  messagingSenderId: "...",
+  appId: "..."
+};'
+              class="mt-1.5 w-full font-mono text-xs rounded-lg border border-[var(--input)] bg-[var(--background)] p-3 outline-none focus:border-[var(--ring)] transition-all"
+            ></textarea>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
+            <button
+              type="button"
+              id="btn-disconnect-cloud"
+              class="hidden rounded-lg border border-red-500/30 px-3 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 cursor-pointer"
+            >
+              Deconectează Cloud
+            </button>
+            <div class="flex items-center gap-2 ml-auto">
+              <button
+                type="submit"
+                class="rounded-lg bg-[var(--primary)] px-5 py-2 text-xs sm:text-sm font-semibold text-white shadow-xs hover:bg-[var(--primary-hover)] cursor-pointer"
+              >
+                🚀 Salvează & Conectează
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Sync Local to Cloud Card -->
+      <div class="rounded-xl border border-[var(--border)] bg-white p-6 shadow-xs">
+        <h3 class="text-base font-bold text-[var(--foreground)] flex items-center gap-2">
+          <span>☁️</span>
+          <span>Sincronizează articolele existente din acest calculator în Cloud</span>
+        </h3>
+        <p class="mt-1 text-xs text-[var(--muted-foreground)] leading-relaxed">
+          Dacă ai scris deja articole pe acest calculator înainte de conectarea Firebase, apasă butonul de mai jos pentru a le trimite în Cloud. Ele vor deveni imediat vizibile pe telefonul mobil și pentru toți vizitatorii.
+        </p>
+        <div class="mt-4">
+          <button
+            type="button"
+            id="btn-sync-local-now"
+            class="inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--secondary)] px-4 py-2 text-xs font-semibold hover:bg-[var(--secondary)]/80 cursor-pointer"
+          >
+            <span>⬆️ Trimite articolele locale în Cloud</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- How to get Firebase (Instructions) -->
+      <div class="rounded-xl border border-[var(--border)]/70 bg-[var(--secondary)]/30 p-5 sm:p-6 text-xs text-[var(--foreground)] space-y-3">
+        <h4 class="font-bold text-sm text-[var(--primary)] flex items-center gap-1.5">
+          <span>📖</span>
+          <span>Cum obții configurarea gratuită Firebase în 2 minute:</span>
+        </h4>
+        <ol class="list-decimal list-inside space-y-2 text-[var(--muted-foreground)] leading-relaxed">
+          <li>Accesează <a href="https://console.firebase.google.com" target="_blank" rel="noopener" class="text-[var(--primary)] underline font-semibold">console.firebase.google.com</a> și autentifică-te cu contul tău Google.</li>
+          <li>Apasă pe <b>„Add project”</b> (ex: <i>drumuri-bune</i>) și parcurge pașii simpli.</li>
+          <li>În meniul din stânga, mergi la <b>Build → Firestore Database</b>, apasă <b>„Create database”</b>, alege <i>Start in test mode</i> (permite scriere/citire liberă) și apasă <i>Next/Enable</i>.</li>
+          <li>Mergi la <b>Project Overview (rotița de setări ⚙️ din stânga sus) → Project settings</b>.</li>
+          <li>Derulează jos la secțiunea <i>Your apps</i>, apasă pe iconița <b>Web (&lt;/&gt;)</b>, dă-i un nume (ex: <i>web</i>) și copiază blocul <code>const firebaseConfig = { ... };</code>.</li>
+          <li>Lipește codul în caseta de mai sus și apasă <b>„🚀 Salvează & Conectează”</b>!</li>
+        </ol>
+      </div>
+    </div>
   </div>
 
   <div id="site-footer"></div>
 </div> <!-- end #control-centre-main -->
 
   <!-- Scripts -->
+  <!-- Firebase SDKs for Multi-Device Cloud Synchronization -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <script src="assets/js/romania-data.js"></script>
   <script src="assets/js/app.js"></script>
   <script>
@@ -496,17 +611,20 @@
         const tabWrite = document.getElementById("tab-write");
         const tabList = document.getElementById("tab-list");
         const tabBackup = document.getElementById("tab-backup");
+        const tabCloud = document.getElementById("tab-cloud");
 
         const btnUgc = document.getElementById("tab-btn-ugc");
         const btnWrite = document.getElementById("tab-btn-write");
         const btnList = document.getElementById("tab-btn-list");
         const btnBackup = document.getElementById("tab-btn-backup");
+        const btnCloud = document.getElementById("tab-btn-cloud");
 
         function switchTab(t) {
           tabUgc.classList.toggle("hidden", t !== "ugc");
           tabWrite.classList.toggle("hidden", t !== "write");
           tabList.classList.toggle("hidden", t !== "list");
           tabBackup.classList.toggle("hidden", t !== "backup");
+          tabCloud.classList.toggle("hidden", t !== "cloud");
 
           btnUgc.className = `tab-btn flex items-center gap-2 rounded-t-lg px-4 py-2 text-sm font-semibold cursor-pointer ${
             t === "ugc" ? "border-b-2 border-[var(--primary)] bg-[var(--background)] text-[var(--primary)]" : "text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/60"
@@ -520,21 +638,27 @@
           btnBackup.className = `tab-btn flex items-center gap-2 rounded-t-lg px-4 py-2 text-sm font-semibold cursor-pointer ${
             t === "backup" ? "border-b-2 border-[var(--primary)] bg-[var(--background)] text-[var(--primary)]" : "text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/60"
           }`;
+          btnCloud.className = `tab-btn flex items-center gap-2 rounded-t-lg px-4 py-2 text-sm font-semibold cursor-pointer ${
+            t === "cloud" ? "border-b-2 border-[var(--primary)] bg-[var(--background)] text-[var(--primary)]" : "text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/60"
+          }`;
 
           if (t === "ugc") renderUgcModeration();
           if (t === "list") renderArticleLibrary();
+          if (t === "cloud") updateCloudUI();
         }
 
         btnUgc.addEventListener("click", () => switchTab("ugc"));
         btnWrite.addEventListener("click", () => switchTab("write"));
         btnList.addEventListener("click", () => switchTab("list"));
         btnBackup.addEventListener("click", () => switchTab("backup"));
+        btnCloud.addEventListener("click", () => switchTab("cloud"));
 
         // 1. Render Stats
         function updateStats() {
           const total = AppStore.getAllArticles().length;
           const countWith = AppStore.countiesWithArticles().length;
           const pendingUgc = AppStore.getPendingUgcCount();
+          const isCloud = AppStore.isCloudActive();
 
           document.getElementById("total-articles-count").textContent = total;
           const badge = document.getElementById("ugc-pending-badge");
@@ -543,7 +667,15 @@
             pendingUgc > 0 ? "bg-amber-500 animate-pulse" : "bg-gray-400"
           }`;
 
+          const dot = document.getElementById("cloud-tab-dot");
+          if (dot) dot.className = `h-2 w-2 rounded-full ${isCloud ? "bg-emerald-500" : "bg-amber-500"}`;
+
           document.getElementById("stats-pills").innerHTML = `
+            <div id="stat-pill-cloud" class="rounded-lg border px-3 py-1.5 shadow-xs font-semibold flex items-center gap-1.5 cursor-pointer ${
+              isCloud ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-800" : "border-amber-500/30 bg-amber-500/10 text-amber-800"
+            }" title="Apasă pentru setări Sincronizare Cloud">
+              <span>${isCloud ? "🟢" : "🟠"}</span> <span>${isCloud ? "Cloud Activ (Multi-Device)" : "Doar Local (Conectează Cloud)"}</span>
+            </div>
             <div class="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 shadow-xs text-amber-900 font-semibold flex items-center gap-1.5">
               <span>🛡️</span> <b>${pendingUgc}</b> UGC în așteptare
             </div>
@@ -554,6 +686,9 @@
               🗺️ <b>${countWith}</b> / 42 județe active
             </div>
           `;
+
+          const cloudPill = document.getElementById("stat-pill-cloud");
+          if (cloudPill) cloudPill.addEventListener("click", () => switchTab("cloud"));
         }
 
         // ==========================================
@@ -1368,8 +1503,135 @@
         }
       });
 
-        // Init
+      // 12. Cloud Sync (Firebase Firestore)
+      function updateCloudUI() {
+        const isAct = AppStore.isCloudActive();
+        const cfg = AppStore.getCloudConfig();
+        const card = document.getElementById("cloud-status-card");
+        const icon = document.getElementById("cloud-status-icon");
+        const title = document.getElementById("cloud-status-title");
+        const desc = document.getElementById("cloud-status-desc");
+        const badge = document.getElementById("cloud-status-badge-text");
+        const dot = document.getElementById("cloud-tab-dot");
+        const disBtn = document.getElementById("btn-disconnect-cloud");
+        const ta = document.getElementById("firebase-config-textarea");
+
+        if (isAct) {
+          card.className = "rounded-xl border p-5 sm:p-6 transition-all border-emerald-500/40 bg-emerald-500/10";
+          icon.textContent = "🟢";
+          title.textContent = `Stare: Sincronizare Cloud Activă (${cfg ? (cfg.projectId || "Conectat") : "Conectat"})`;
+          desc.textContent = "Toate articolele și propunerile UGC sunt sincronizate în timp real între telefoane, laptopuri și toți vizitatorii.";
+          badge.className = "self-start sm:self-center rounded-full bg-emerald-200 text-emerald-900 px-3 py-1 text-xs font-bold shrink-0";
+          badge.textContent = "Sincronizat";
+          if (dot) dot.className = "h-2 w-2 rounded-full bg-emerald-500";
+          if (disBtn) disBtn.classList.remove("hidden");
+          if (ta && cfg && !ta.value.trim()) {
+            ta.value = JSON.stringify(cfg, null, 2);
+          }
+        } else {
+          card.className = "rounded-xl border p-5 sm:p-6 transition-all border-amber-500/40 bg-amber-500/10";
+          icon.textContent = "🟠";
+          title.textContent = "Stare: Salvare Locală (Doar pe acest calculator)";
+          desc.textContent = "Pentru ca articolele să fie vizibile pe telefonul mobil și pentru alți vizitatori, conectează Google Firebase Firestore.";
+          badge.className = "self-start sm:self-center rounded-full bg-amber-200 text-amber-900 px-3 py-1 text-xs font-bold shrink-0";
+          badge.textContent = "Doar Local";
+          if (dot) dot.className = "h-2 w-2 rounded-full bg-amber-500";
+          if (disBtn) disBtn.classList.add("hidden");
+        }
+      }
+
+      const cloudForm = document.getElementById("firebase-config-form");
+      const cloudAlert = document.getElementById("cloud-alert-msg");
+      const syncLocalNowBtn = document.getElementById("btn-sync-local-now");
+      const disconnectBtn = document.getElementById("btn-disconnect-cloud");
+
+      function showCloudMsg(msg, isSuccess) {
+        cloudAlert.textContent = msg;
+        cloudAlert.className = `rounded-lg border p-3.5 text-center text-xs sm:text-sm font-semibold ${
+          isSuccess ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-800" : "border-red-500/30 bg-red-500/10 text-red-800"
+        }`;
+        cloudAlert.classList.remove("hidden");
+        setTimeout(() => cloudAlert.classList.add("hidden"), 6000);
+      }
+
+      if (cloudForm) {
+        cloudForm.addEventListener("submit", (e) => {
+          e.preventDefault();
+          const raw = document.getElementById("firebase-config-textarea").value.trim();
+          if (!raw) {
+            showCloudMsg("Te rugăm să lipești codul de configurare Firebase.", false);
+            return;
+          }
+
+          let parsed = null;
+          try {
+            parsed = JSON.parse(raw);
+          } catch (err) {
+            // Regex parse for pasted JS object snippet
+            const getVal = (key) => {
+              const m = raw.match(new RegExp(`${key}\\s*:\\s*["']([^"']+)["']`));
+              return m ? m[1] : "";
+            };
+            const apiKey = getVal("apiKey");
+            const projectId = getVal("projectId");
+            const authDomain = getVal("authDomain");
+            const storageBucket = getVal("storageBucket");
+            const messagingSenderId = getVal("messagingSenderId");
+            const appId = getVal("appId");
+            if (apiKey && projectId) {
+              parsed = { apiKey, authDomain, projectId, storageBucket, messagingSenderId, appId };
+            }
+          }
+
+          if (!parsed || (!parsed.projectId && !parsed.apiKey)) {
+            showCloudMsg("Formatul configurării este invalid. Asigură-te că include cel puțin apiKey și projectId.", false);
+            return;
+          }
+
+          const res = AppStore.setCloudConfig(parsed);
+          showCloudMsg(res.message, res.success);
+          updateCloudUI();
+          updateStats();
+        });
+      }
+
+      if (syncLocalNowBtn) {
+        syncLocalNowBtn.addEventListener("click", () => {
+          const res = AppStore.syncLocalToCloudNow();
+          showCloudMsg(res.message, res.success);
+          updateStats();
+        });
+      }
+
+      if (disconnectBtn) {
+        disconnectBtn.addEventListener("click", () => {
+          if (confirm("Ești sigur că vrei să deconectezi Firebase? Se va reveni la salvarea locală.")) {
+            const res = AppStore.setCloudConfig(null);
+            showCloudMsg(res.message, res.success);
+            updateCloudUI();
+            updateStats();
+          }
+        });
+      }
+
+      window.addEventListener("discover-romania-cloud-sync-status", () => {
+        updateCloudUI();
         updateStats();
+      });
+
+      window.addEventListener("discover-romania-articles-updated", () => {
+        updateStats();
+        renderArticleLibrary();
+      });
+
+      window.addEventListener("discover-romania-ugc-updated", () => {
+        updateStats();
+        renderUgcModeration();
+      });
+
+      // Init
+      updateStats();
+      updateCloudUI();
         renderFormSectors();
         renderCountySelect();
         renderSections();
